@@ -20,7 +20,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Mix\\Console": "src/"
+      "Mix\\Console\\": "src/"
     }
   }
 }
