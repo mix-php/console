@@ -4,8 +4,6 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Color;
 use Mix\Core\Component;
-use Mix\Core\Coroutine;
-use Mix\Helpers\ProcessHelper;
 
 /**
  * Error类
@@ -23,19 +21,18 @@ class Error extends Component
     /**
      * 异常处理
      * @param $e
-     * @param bool $exit
      */
-    public function handleException($e, $exit = false)
+    public function handleException($e)
     {
         // debug处理
         if ($e instanceof \Mix\Exceptions\DebugException) {
             $content = $e->getMessage();
             echo $content;
-            $this->exit(0);
+            exit(0);
         }
         // exit处理
         if ($e instanceof \Mix\Exceptions\EndException) {
-            $this->exit($e->getCode());
+            exit($e->getCode());
         }
         // 错误参数定义
         $errors = [
@@ -52,10 +49,6 @@ class Error extends Component
         }
         // 打印到屏幕
         self::print($errors);
-        // 退出
-        if ($exit) {
-            self::exit(1);
-        }
     }
 
     /**
@@ -64,6 +57,9 @@ class Error extends Component
      */
     protected static function log($errors)
     {
+        if (!app()->has('log')) {
+            return;
+        }
         // 构造消息
         $message = "{$errors['message']}" . PHP_EOL;
         $message .= "[type] {$errors['type']} [code] {$errors['code']}" . PHP_EOL;
@@ -114,19 +110,6 @@ class Error extends Component
         Color::new()->print(' line ');
         Color::new(Color::BG_RED)->println($errors['line']);
         Color::new()->println(str_replace("\n", PHP_EOL, $errors['trace']));
-    }
-
-    /**
-     * 退出
-     * @param $exitCode
-     */
-    protected static function exit($code)
-    {
-        if (Coroutine::id() == -1) {
-            exit($code);
-        } else {
-            ProcessHelper::kill(ProcessHelper::getPid(), SIGKILL);
-        }
     }
 
 }
