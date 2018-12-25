@@ -49,6 +49,10 @@ class Application extends \Mix\Core\Application
             $flag = array_shift($keys);
             throw new \Mix\Exceptions\NotFoundException("flag provided but not defined: '{$flag}', see '-h/--help'.");
         }
+        if ((Arguments::command() !== '' || Arguments::subCommand() !== '') && Flag::bool(['h', 'help'], false)) {
+            $this->commandHelp();
+            return;
+        }
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
         $this->runAction($command);
     }
@@ -60,6 +64,19 @@ class Application extends \Mix\Core\Application
         println("Usage: {$script} [OPTIONS] COMMAND [SUBCOMMAND] [arg...]");
         $this->printOptions();
         $this->printCommands();
+        println('');
+        println("Run '{$script} COMMAND [SUBCOMMAND] --help' for more information on a command.");
+        println('');
+        println("Developed with MixPHP framework.");
+    }
+
+    // 命令帮助
+    protected function commandHelp()
+    {
+        $script  = Arguments::script();
+        $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
+        println("Usage: {$script} {$command} [arg...]");
+        $this->printCommandOptions();
         println('');
         println("Developed with MixPHP framework.");
     }
@@ -80,6 +97,21 @@ class Application extends \Mix\Core\Application
         println('Options:');
         println("  -h/--help\tPrint usage.");
         println("  -v/--version\tPrint version information.");
+    }
+
+    // 打印命令选项列表
+    protected function printCommandOptions()
+    {
+        $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
+        if (!isset($this->commands[$command]['options'])) {
+            return;
+        }
+        $options = $this->commands[$command]['options'];
+        println('');
+        println('Options:');
+        foreach ($options as $option => $description) {
+            println("  {$option}\t{$description}");
+        }
     }
 
     // 打印命令列表
