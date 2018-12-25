@@ -67,7 +67,7 @@ class Application extends \Mix\Core\Application
         println('');
         println("Run '{$script} COMMAND [SUBCOMMAND] --help' for more information on a command.");
         println('');
-        println("Developed with MixPHP framework.");
+        println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
     // 命令帮助
@@ -78,7 +78,7 @@ class Application extends \Mix\Core\Application
         println("Usage: {$script} {$command} [arg...]");
         $this->printCommandOptions();
         println('');
-        println("Developed with MixPHP framework.");
+        println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
     // 版本
