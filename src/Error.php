@@ -87,8 +87,6 @@ class Error extends Component
      */
     protected static function print($errors)
     {
-        // 清空系统错误
-        ob_get_contents() and ob_clean();
         // 直接输出
         if ($errors['type'] == 'Mix\Exceptions\NotFoundException' || !\Mix::$app->appDebug) {
             println($errors['message']);
