@@ -2,14 +2,14 @@
 
 namespace Mix\Console;
 
-use Mix\Core\DIObject;
+use Mix\Core\BeanObject;
 use Mix\Helpers\ProcessHelper;
 
 /**
  * Class PidFileHandler
  * @package Mix\Console
  */
-class PidFileHandler extends DIObject
+class PidFileHandler extends BeanObject
 {
 
     /**

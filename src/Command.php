@@ -2,12 +2,12 @@
 
 namespace Mix\Console;
 
-use Mix\Core\DIObject;
+use Mix\Core\BeanObject;
 
 /**
  * Command类
  * @author LIUJIAN <coder.keda@gmail.com>
  */
-class Command extends DIObject
+class Command extends BeanObject
 {
 }
