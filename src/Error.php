@@ -4,6 +4,7 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Color;
 use Mix\Core\Component;
+use Mix\Helpers\PhpHelper;
 
 /**
  * Error类
@@ -87,20 +88,39 @@ class Error extends Component
      */
     protected static function print($errors)
     {
-        // 直接输出
+        // 只输出消息
         if ($errors['type'] == 'Mix\Exceptions\NotFoundException' || !\Mix::$app->appDebug) {
             println($errors['message']);
             return;
         }
-        // 打印到屏幕，带颜色
-        self::printColor($errors);
+        // 无格式打印
+        if (PhpHelper::isWin()) {
+            self::plainPrint($errors);
+            return;
+        }
+        // 带颜色打印
+        self::colorPrint($errors);
     }
 
     /**
-     * 打印到屏幕，带颜色
+     * 无格式打印
      * @param $errors
      */
-    protected static function printColor($errors)
+    protected static function plainPrint($errors)
+    {
+        println($errors['message']);
+        println("{$errors['type']} code {$errors['code']}");
+        echo $errors['file'];
+        echo ' line ';
+        println($errors['line']);
+        println(str_replace("\n", PHP_EOL, $errors['trace']));
+    }
+
+    /**
+     * 带颜色打印
+     * @param $errors
+     */
+    protected static function colorPrint($errors)
     {
         Color::new(Color::BG_RED)->println($errors['message']);
         Color::new()->println("{$errors['type']} code {$errors['code']}");
