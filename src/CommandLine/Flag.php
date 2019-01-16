@@ -41,7 +41,7 @@ class Flag
             if (substr($name, 0, 2) == '--' || substr($name, 0, 1) == '-') {
                 if (substr($name, 0, 1) == '-' && $value === '' && isset($argv[$key + 1])) {
                     $next = $argv[$key + 1];
-                    if (preg_match('/^[a-z0-9]+$/i', $next)) {
+                    if (preg_match('/^\S+$/i', $next)) {
                         $value = $next;
                     }
                 }
