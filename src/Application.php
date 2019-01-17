@@ -77,7 +77,6 @@ class Application extends \Mix\Core\Application
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
         println("Usage: {$script} {$command} [arg...]");
         $this->printCommandOptions();
-        println('');
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
@@ -99,6 +98,26 @@ class Application extends \Mix\Core\Application
         println("  -v/--version\tPrint version information.");
     }
 
+    // 打印命令列表
+    protected function printCommands()
+    {
+        println('');
+        println('Commands:');
+        foreach ($this->commands as $key => $item) {
+            $command     = $key;
+            $subCommand  = '';
+            $description = $item['description'] ?? '';
+            if (strpos($key, ' ') !== false) {
+                list($command, $subCommand) = explode(' ', $key);
+            }
+            if ($subCommand == '') {
+                println("    {$command}\t{$description}");
+            } else {
+                println("    {$command} {$subCommand}\t{$description}");
+            }
+        }
+    }
+
     // 打印命令选项列表
     protected function printCommandOptions()
     {
@@ -112,34 +131,7 @@ class Application extends \Mix\Core\Application
         foreach ($options as $option => $description) {
             println("  {$option}\t{$description}");
         }
-    }
-
-    // 打印命令列表
-    protected function printCommands()
-    {
         println('');
-        println('Commands:');
-        $lastCommand = '';
-        foreach ($this->commands as $key => $item) {
-            $command    = $key;
-            $subCommand = '';
-            if (strpos($key, ' ') !== false) {
-                list($command, $subCommand) = explode(' ', $key);
-            }
-            $description = '';
-            if (is_array($item) && isset($item['description'])) {
-                $description = $item['description'];
-            }
-            if ($command != $lastCommand && $subCommand != '') {
-                println("  {$command}");
-            }
-            if ($subCommand == '') {
-                println("  {$command}\t{$item['description']}");
-            } else {
-                println("    {$command} {$subCommand}\t{$item['description']}");
-            }
-            $lastCommand = $command;
-        }
     }
 
     // 执行功能并返回
