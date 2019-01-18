@@ -85,7 +85,7 @@ class Application extends \Mix\Core\Application
     {
         $appName          = \Mix::$app->appName;
         $appVersion       = \Mix::$app->appVersion;
-        $frameworkVersion = \Mix::VERSION;
+        $frameworkVersion = \Mix::$version;
         println("{$appName} version {$appVersion}, framework version {$frameworkVersion}");
     }
 
