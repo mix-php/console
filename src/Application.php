@@ -160,7 +160,8 @@ class Application extends \Mix\Core\Application
         if (!method_exists($commandInstance, $commandAction)) {
             throw new \Mix\Exceptions\CommandException("'{$commandClass}::main' method not found.");
         }
-        return $commandInstance->$commandAction();
+        // 执行方法
+        return call_user_func([$commandInstance, $commandAction]);
     }
 
     // 获取组件
