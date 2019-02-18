@@ -3,7 +3,7 @@
 namespace Mix\Console;
 
 use Mix\Console\CommandLine\Color;
-use Mix\Core\Component;
+use Mix\Core\Component\Component;
 use Mix\Helpers\PhpHelper;
 
 /**

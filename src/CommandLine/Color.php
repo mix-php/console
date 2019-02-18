@@ -2,8 +2,8 @@
 
 namespace Mix\Console\CommandLine;
 
-use Mix\Core\StaticInstanceInterface;
-use Mix\Core\StaticInstanceTrait;
+use Mix\Core\StaticInstance\StaticInstanceInterface;
+use Mix\Core\StaticInstance\StaticInstanceTrait;
 
 /**
  * Class Color
