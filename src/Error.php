@@ -3,14 +3,14 @@
 namespace Mix\Console;
 
 use Mix\Console\CommandLine\Color;
-use Mix\Core\Component\Component;
+use Mix\Core\Component\AbstractComponent;
 use Mix\Helpers\PhpHelper;
 
 /**
  * Error类
  * @author LIUJIAN <coder.keda@gmail.com>
  */
-class Error extends Component
+class Error extends AbstractComponent
 {
 
     /**

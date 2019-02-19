@@ -2,14 +2,14 @@
 
 namespace Mix\Console;
 
-use Mix\Core\Bean\BeanObject;
+use Mix\Core\Bean\AbstractObject;
 use Mix\Helpers\ProcessHelper;
 
 /**
  * Class PidFileHandler
  * @package Mix\Console
  */
-class PidFileHandler extends BeanObject
+class PidFileHandler extends AbstractObject
 {
 
     /**
