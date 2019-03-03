@@ -2,17 +2,12 @@
 
 namespace Mix\Console\CommandLine;
 
-use Mix\Core\StaticInstance\StaticInstanceInterface;
-use Mix\Core\StaticInstance\StaticInstanceTrait;
-
 /**
  * Class Color
  * @package Mix\Console
  */
-class Color implements StaticInstanceInterface
+class Color
 {
-
-    use StaticInstanceTrait;
 
     // 式样
     const RESET = "\033[0m";
@@ -67,6 +62,16 @@ class Color implements StaticInstanceInterface
      * @var array
      */
     protected $_attributes = [];
+
+    /**
+     * 使用静态方法创建实例
+     * @param mixed ...$args
+     * @return $this
+     */
+    public static function new(...$args)
+    {
+        return new static(...$args);
+    }
 
     /**
      * 构造
