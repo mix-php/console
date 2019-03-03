@@ -3,7 +3,7 @@
 namespace Mix\Console;
 
 use Mix\Core\Bean\AbstractObject;
-use Mix\Helpers\ProcessHelper;
+use Mix\Helper\ProcessHelper;
 
 /**
  * Class PidFileHandler

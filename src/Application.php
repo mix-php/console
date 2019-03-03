@@ -47,7 +47,7 @@ class Application extends \Mix\Core\Application
             }
             $keys = array_keys($options);
             $flag = array_shift($keys);
-            throw new \Mix\Exceptions\NotFoundException("flag provided but not defined: '{$flag}', see '-h/--help'.");
+            throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '-h/--help'.");
         }
         if ((Arguments::command() !== '' || Arguments::subCommand() !== '') && Flag::bool(['h', 'help'], false)) {
             $this->commandHelp();
@@ -138,7 +138,7 @@ class Application extends \Mix\Core\Application
     public function runAction($command)
     {
         if (!isset($this->commands[$command])) {
-            throw new \Mix\Exceptions\NotFoundException("'{$command}' is not command, see '-h/--help'.");
+            throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '-h/--help'.");
         }
         // 实例化控制器
         $shortClass = $this->commands[$command];
@@ -146,19 +146,19 @@ class Application extends \Mix\Core\Application
             $shortClass = array_shift($shortClass);
         }
         $shortClass    = str_replace('/', "\\", $shortClass);
-        $commandDir    = \Mix\Helpers\FileSystemHelper::dirname($shortClass);
+        $commandDir    = \Mix\Helper\FileSystemHelper::dirname($shortClass);
         $commandDir    = $commandDir == '.' ? '' : "$commandDir\\";
-        $commandName   = \Mix\Helpers\FileSystemHelper::basename($shortClass);
+        $commandName   = \Mix\Helper\FileSystemHelper::basename($shortClass);
         $commandClass  = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
         $commandAction = 'main';
         // 判断类是否存在
         if (!class_exists($commandClass)) {
-            throw new \Mix\Exceptions\CommandException("'{$commandClass}' class not found.");
+            throw new \Mix\Exception\CommandException("'{$commandClass}' class not found.");
         }
         $commandInstance = new $commandClass();
         // 判断方法是否存在
         if (!method_exists($commandInstance, $commandAction)) {
-            throw new \Mix\Exceptions\CommandException("'{$commandClass}::main' method not found.");
+            throw new \Mix\Exception\CommandException("'{$commandClass}::main' method not found.");
         }
         // 执行方法
         return call_user_func([$commandInstance, $commandAction]);
@@ -180,14 +180,14 @@ class Application extends \Mix\Core\Application
         $dumpContent = ob_get_clean();
         $content     .= $dumpContent;
         if ($send) {
-            throw new \Mix\Exceptions\DebugException($content);
+            throw new \Mix\Exception\DebugException($content);
         }
     }
 
     // 终止程序
     public function end($code = 0)
     {
-        throw new \Mix\Exceptions\EndException('', $code);
+        throw new \Mix\Exception\EndException('', $code);
     }
 
 }

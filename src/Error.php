@@ -4,7 +4,7 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Color;
 use Mix\Core\Component\AbstractComponent;
-use Mix\Helpers\PhpHelper;
+use Mix\Helper\PhpHelper;
 
 /**
  * Error类
@@ -26,13 +26,13 @@ class Error extends AbstractComponent
     public function handleException($e)
     {
         // debug处理
-        if ($e instanceof \Mix\Exceptions\DebugException) {
+        if ($e instanceof \Mix\Exception\DebugException) {
             $content = $e->getMessage();
             echo $content;
             exit(0);
         }
         // exit处理
-        if ($e instanceof \Mix\Exceptions\EndException) {
+        if ($e instanceof \Mix\Exception\EndException) {
             exit($e->getCode());
         }
         // 错误参数定义
@@ -45,7 +45,7 @@ class Error extends AbstractComponent
             'trace'   => $e->getTraceAsString(),
         ];
         // 日志处理
-        if (!($e instanceof \Mix\Exceptions\NotFoundException)) {
+        if (!($e instanceof \Mix\Exception\NotFoundException)) {
             self::log($errors);
         }
         // 打印到屏幕
@@ -89,7 +89,7 @@ class Error extends AbstractComponent
     protected static function print($errors)
     {
         // 只输出消息
-        if ($errors['type'] == 'Mix\Exceptions\NotFoundException' || !\Mix::$app->appDebug) {
+        if ($errors['type'] == 'Mix\Exception\NotFoundException' || !\Mix::$app->appDebug) {
             println($errors['message']);
             return;
         }
