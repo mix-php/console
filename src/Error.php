@@ -58,7 +58,7 @@ class Error extends AbstractComponent
      */
     protected static function log($errors)
     {
-        if (!app()->has('log')) {
+        if (!\Mix::$app->isRegistered('log')) {
             return;
         }
         // 构造消息
