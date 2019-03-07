@@ -6,25 +6,41 @@ use Mix\Console\CommandLine\Arguments;
 use Mix\Console\CommandLine\Flag;
 
 /**
- * App类
+ * Class Application
+ * @package Mix\Console
  * @author LIUJIAN <coder.keda@gmail.com>
  */
 class Application extends \Mix\Core\Application
 {
 
-    // 应用名称
+    /**
+     * 应用名称
+     * @var string
+     */
     public $appName = 'app-console';
 
-    // 应用版本
+    /**
+     * 应用版本
+     * @var string
+     */
     public $appVersion = '0.0.0';
 
-    // 命令命名空间
+    /**
+     * 命令命名空间
+     * @var string
+     */
     public $commandNamespace = '';
 
-    // 命令
+    /**
+     * 命令
+     * @var array
+     */
     public $commands = [];
 
-    // 执行功能 (CLI模式)
+    /**
+     * 执行功能 (CLI模式)
+     * @return mixed
+     */
     public function run()
     {
         if (PHP_SAPI != 'cli') {
@@ -54,10 +70,12 @@ class Application extends \Mix\Core\Application
             return;
         }
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
-        $this->runAction($command);
+        return $this->runAction($command);
     }
 
-    // 帮助
+    /**
+     * 帮助
+     */
     protected function help()
     {
         $script = Arguments::script();
@@ -70,26 +88,32 @@ class Application extends \Mix\Core\Application
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
-    // 命令帮助
+    /**
+     * 命令帮助
+     */
     protected function commandHelp()
     {
-        $script  = Arguments::script();
+        $script = Arguments::script();
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
         println("Usage: {$script} {$command} [arg...]");
         $this->printCommandOptions();
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
-    // 版本
+    /**
+     * 版本
+     */
     protected function version()
     {
-        $appName          = \Mix::$app->appName;
-        $appVersion       = \Mix::$app->appVersion;
+        $appName = \Mix::$app->appName;
+        $appVersion = \Mix::$app->appVersion;
         $frameworkVersion = \Mix::$version;
         println("{$appName} version {$appVersion}, framework version {$frameworkVersion}");
     }
 
-    // 打印选项列表
+    /**
+     * 打印选项列表
+     */
     protected function printOptions()
     {
         println('');
@@ -98,14 +122,16 @@ class Application extends \Mix\Core\Application
         println("  -v/--version\tPrint version information.");
     }
 
-    // 打印命令列表
+    /**
+     * 打印命令列表
+     */
     protected function printCommands()
     {
         println('');
         println('Commands:');
         foreach ($this->commands as $key => $item) {
-            $command     = $key;
-            $subCommand  = '';
+            $command = $key;
+            $subCommand = '';
             $description = $item['description'] ?? '';
             if (strpos($key, ' ') !== false) {
                 list($command, $subCommand) = explode(' ', $key);
@@ -118,7 +144,9 @@ class Application extends \Mix\Core\Application
         }
     }
 
-    // 打印命令选项列表
+    /**
+     * 打印命令选项列表
+     */
     protected function printCommandOptions()
     {
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
@@ -134,7 +162,11 @@ class Application extends \Mix\Core\Application
         println('');
     }
 
-    // 执行功能并返回
+    /**
+     * 执行功能并返回
+     * @param $command
+     * @return mixed
+     */
     public function runAction($command)
     {
         if (!isset($this->commands[$command])) {
@@ -145,11 +177,11 @@ class Application extends \Mix\Core\Application
         if (is_array($shortClass)) {
             $shortClass = array_shift($shortClass);
         }
-        $shortClass    = str_replace('/', "\\", $shortClass);
-        $commandDir    = \Mix\Helper\FileSystemHelper::dirname($shortClass);
-        $commandDir    = $commandDir == '.' ? '' : "$commandDir\\";
-        $commandName   = \Mix\Helper\FileSystemHelper::basename($shortClass);
-        $commandClass  = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
+        $shortClass = str_replace('/', "\\", $shortClass);
+        $commandDir = \Mix\Helper\FileSystemHelper::dirname($shortClass);
+        $commandDir = $commandDir == '.' ? '' : "$commandDir\\";
+        $commandName = \Mix\Helper\FileSystemHelper::basename($shortClass);
+        $commandClass = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
         $commandAction = 'main';
         // 判断类是否存在
         if (!class_exists($commandClass)) {
@@ -164,7 +196,11 @@ class Application extends \Mix\Core\Application
         return call_user_func([$commandInstance, $commandAction]);
     }
 
-    // 获取组件
+    /**
+     * 获取组件
+     * @param $name
+     * @return \Mix\Core\Component\ComponentInterface
+     */
     public function __get($name)
     {
         // 从容器返回组件

@@ -7,7 +7,8 @@ use Mix\Core\Component\AbstractComponent;
 use Mix\Helper\PhpHelper;
 
 /**
- * Error类
+ * Class Error
+ * @package Mix\Console
  * @author LIUJIAN <coder.keda@gmail.com>
  */
 class Error extends AbstractComponent
