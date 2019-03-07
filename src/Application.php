@@ -171,23 +171,4 @@ class Application extends \Mix\Core\Application
         return $this->container->get($name);
     }
 
-    // 打印变量的相关信息
-    public function dump($var, $send = false)
-    {
-        static $content = '';
-        ob_start();
-        var_dump($var);
-        $dumpContent = ob_get_clean();
-        $content     .= $dumpContent;
-        if ($send) {
-            throw new \Mix\Exception\DebugException($content);
-        }
-    }
-
-    // 终止程序
-    public function end($code = 0)
-    {
-        throw new \Mix\Exception\EndException('', $code);
-    }
-
 }

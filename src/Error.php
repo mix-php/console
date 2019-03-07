@@ -25,16 +25,6 @@ class Error extends AbstractComponent
      */
     public function handleException($e)
     {
-        // debug处理
-        if ($e instanceof \Mix\Exception\DebugException) {
-            $content = $e->getMessage();
-            echo $content;
-            exit(0);
-        }
-        // exit处理
-        if ($e instanceof \Mix\Exception\EndException) {
-            exit($e->getCode());
-        }
         // 错误参数定义
         $errors = [
             'code'    => $e->getCode(),
