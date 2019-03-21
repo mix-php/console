@@ -86,10 +86,12 @@ class Color
     /**
      * 新增属性
      * @param mixed ...$attributes
+     * @return $this
      */
     public function add(...$attributes)
     {
         $this->_attributes = array_merge($this->_attributes, $attributes);
+        return $this;
     }
 
     /**
