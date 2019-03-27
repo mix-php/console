@@ -5,7 +5,7 @@ namespace Mix\Console\CommandLine;
 /**
  * Class Flags
  * @package Mix\Console
- * @author LIUJIAN <coder.keda@gmail.com>
+ * @author liu,jian <coder.keda@gmail.com>
  */
 class Flag
 {

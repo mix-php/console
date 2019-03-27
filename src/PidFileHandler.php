@@ -8,7 +8,7 @@ use Mix\Helper\ProcessHelper;
 /**
  * Class PidFileHandler
  * @package Mix\Console
- * @author LIUJIAN <coder.keda@gmail.com>
+ * @author liu,jian <coder.keda@gmail.com>
  */
 class PidFileHandler extends AbstractObject
 {
