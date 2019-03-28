@@ -52,22 +52,23 @@ class Error extends AbstractComponent
             return;
         }
         // 构造消息
-        $message = "{$errors['message']}" . PHP_EOL;
-        $message .= "[type] {$errors['type']} [code] {$errors['code']}" . PHP_EOL;
-        $message .= "[file] {$errors['file']} [line] {$errors['line']}" . PHP_EOL;
-        $message .= "[trace] {$errors['trace']}" . PHP_EOL;
-        $message .= '$_SERVER' . substr(print_r($_SERVER, true), 5, -1);
+        $message = <<<EOL
+{message}
+[type] {type} [code] {code}
+[file] {file} [line] {line}
+[trace] {trace}
+EOL;
         // 写入
         $errorType = \Mix\Core\Error::getType($errors['code']);
         switch ($errorType) {
             case 'error':
-                \Mix::$app->log->error($message);
+                \Mix::$app->log->error($message, $errors);
                 break;
             case 'warning':
-                \Mix::$app->log->warning($message);
+                \Mix::$app->log->warning($message, $errors);
                 break;
             case 'notice':
-                \Mix::$app->log->notice($message);
+                \Mix::$app->log->notice($message, $errors);
                 break;
         }
     }
