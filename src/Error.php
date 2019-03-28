@@ -2,9 +2,7 @@
 
 namespace Mix\Console;
 
-use Mix\Console\CommandLine\Color;
 use Mix\Core\Component\AbstractComponent;
-use Mix\Helper\PhpHelper;
 
 /**
  * Class Error
@@ -38,9 +36,10 @@ class Error extends AbstractComponent
         // 日志处理
         if (!($e instanceof \Mix\Exception\NotFoundException)) {
             self::log($errors);
+            return;
         }
         // 打印到屏幕
-        self::print($errors);
+        println($errors['message']);
     }
 
     /**
@@ -71,54 +70,6 @@ class Error extends AbstractComponent
                 \Mix::$app->log->notice($message);
                 break;
         }
-    }
-
-    /**
-     * 打印到屏幕
-     * @param $errors
-     */
-    protected static function print($errors)
-    {
-        // 只输出消息
-        if ($errors['type'] == 'Mix\Exception\NotFoundException' || !\Mix::$app->appDebug) {
-            println($errors['message']);
-            return;
-        }
-        // 无格式打印
-        if (PhpHelper::isWin()) {
-            self::plainPrint($errors);
-            return;
-        }
-        // 带颜色打印
-        self::colorPrint($errors);
-    }
-
-    /**
-     * 无格式打印
-     * @param $errors
-     */
-    protected static function plainPrint($errors)
-    {
-        println($errors['message']);
-        println("{$errors['type']} code {$errors['code']}");
-        echo $errors['file'];
-        echo ' line ';
-        println($errors['line']);
-        println(str_replace("\n", PHP_EOL, $errors['trace']));
-    }
-
-    /**
-     * 带颜色打印
-     * @param $errors
-     */
-    protected static function colorPrint($errors)
-    {
-        Color::new(Color::BG_RED)->println($errors['message']);
-        Color::new()->println("{$errors['type']} code {$errors['code']}");
-        Color::new(Color::BG_RED)->print($errors['file']);
-        Color::new()->print(' line ');
-        Color::new(Color::BG_RED)->println($errors['line']);
-        Color::new()->println(str_replace("\n", PHP_EOL, $errors['trace']));
     }
 
 }
