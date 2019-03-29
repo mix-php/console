@@ -48,9 +48,6 @@ class Error extends AbstractComponent
      */
     protected static function log($errors)
     {
-        if (!\Mix::$app->isRegistered('log')) {
-            return;
-        }
         // 构造消息
         $message = <<<EOL
 {message}
@@ -59,8 +56,8 @@ class Error extends AbstractComponent
 [trace] {trace}
 EOL;
         // 写入
-        $errorType = \Mix\Core\Error::getType($errors['code']);
-        switch ($errorType) {
+        $level = \Mix\Core\Error::getLevel($errors['code']);
+        switch ($level) {
             case 'error':
                 \Mix::$app->log->error($message, $errors);
                 break;
