@@ -87,9 +87,9 @@ class Flag
 
     /**
      * 获取字符值
-     * @param $name
+     * @param string|array $name
      * @param string $default
-     * @return mixed|string
+     * @return string
      */
     public static function string($name, $default = '')
     {
@@ -116,7 +116,7 @@ class Flag
     }
 
     /**
-     * 返回全部命令行选项
+     * 全部命令行选项
      * @return array
      */
     public static function options()

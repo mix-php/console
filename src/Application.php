@@ -167,8 +167,22 @@ class Application extends \Mix\Core\Application
         $options = $this->commands[$command]['options'];
         println('');
         println('Options:');
-        foreach ($options as $option => $description) {
-            println("  {$option}\t{$description}");
+        foreach ($options as $option) {
+            $names = array_shift($option);
+            if (is_string($names)) {
+                $names = [$names];
+            }
+            $flags = [];
+            foreach ($names as $name) {
+                if (strlen($name) == 1) {
+                    $flags[] = "-{$name}";
+                } else {
+                    $flags[] = "--{$name}";
+                }
+            }
+            $flag        = implode(', ', $flags);
+            $description = $option['description'] ?? '';
+            println("  {$flag}\t{$description}");
         }
         println('');
     }
@@ -203,8 +217,38 @@ class Application extends \Mix\Core\Application
         if (!method_exists($commandInstance, $commandAction)) {
             throw new \Mix\Exception\CommandException("'{$commandClass}::main' method not found.");
         }
+        // 命令行选项效验
+        $this->validateOptions($command);
         // 执行方法
         return call_user_func([$commandInstance, $commandAction]);
+    }
+
+    /**
+     * 命令行选项效验
+     * @param $command
+     */
+    protected function validateOptions($command)
+    {
+        $options  = $this->commands[$command]['options'] ?? [];
+        $regflags = [];
+        foreach ($options as $option) {
+            $names = array_shift($option);
+            if (is_string($names)) {
+                $names = [$names];
+            }
+            foreach ($names as $name) {
+                if (strlen($name) == 1) {
+                    $regflags[] = "-{$name}";
+                } else {
+                    $regflags[] = "--{$name}";
+                }
+            }
+        }
+        foreach (array_keys(Flag::options()) as $flag) {
+            if (!in_array($flag, $regflags)) {
+                throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '-h/--help'.");
+            }
+        }
     }
 
     /**
