@@ -130,8 +130,8 @@ class Application extends \Mix\Core\Application
     {
         println('');
         println('Options:');
-        println("  -h, --help\tPrint usage.");
-        println("  -v, --version\tPrint version information.");
+        println("  -h, --help\t\tPrint usage.");
+        println("  -v, --version\t\tPrint version information.");
     }
 
     /**
