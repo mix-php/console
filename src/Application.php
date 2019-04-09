@@ -130,8 +130,8 @@ class Application extends \Mix\Core\Application
     {
         println('');
         println('Options:');
-        println("  --help\tPrint usage.");
-        println("  -v/--version\tPrint version information.");
+        println("  -h, --help\tPrint usage.");
+        println("  -v, --version\tPrint version information.");
     }
 
     /**
@@ -149,9 +149,9 @@ class Application extends \Mix\Core\Application
                 list($command, $subCommand) = explode(' ', $key);
             }
             if ($subCommand == '') {
-                println("    {$command}\t{$description}");
+                println("  {$command}\t{$description}");
             } else {
-                println("    {$command} {$subCommand}\t{$description}");
+                println("  {$command} {$subCommand}\t{$description}");
             }
         }
     }
