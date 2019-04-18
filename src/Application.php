@@ -72,8 +72,8 @@ class Application extends \Mix\Core\Application
                 $this->help();
                 return;
             }
-            $keys = array_keys($options);
-            $flag = array_shift($keys);
+            $keys   = array_keys($options);
+            $flag   = array_shift($keys);
             $script = Arguments::script();
             throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'.");
         }
@@ -105,7 +105,7 @@ class Application extends \Mix\Core\Application
      */
     protected function commandHelp()
     {
-        $script = Arguments::script();
+        $script  = Arguments::script();
         $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
         println("Usage: {$script} {$command} [arg...]");
         $this->printCommandOptions();
@@ -117,8 +117,8 @@ class Application extends \Mix\Core\Application
      */
     protected function version()
     {
-        $appName = \Mix::$app->appName;
-        $appVersion = \Mix::$app->appVersion;
+        $appName          = \Mix::$app->appName;
+        $appVersion       = \Mix::$app->appVersion;
         $frameworkVersion = \Mix::$version;
         println("{$appName} version {$appVersion}, framework version {$frameworkVersion}");
     }
@@ -128,10 +128,25 @@ class Application extends \Mix\Core\Application
      */
     protected function printOptions()
     {
+        $tabs = $this->hasSubCommand() ? "\t\t" : "\t";
         println('');
         println('Options:');
-        println("  -h, --help\t\tPrint usage.");
-        println("  -v, --version\t\tPrint version information.");
+        println("  -h, --help{$tabs}Print usage.");
+        println("  -v, --version{$tabs}Print version information.");
+    }
+
+    /**
+     * 有子命令
+     * @return bool
+     */
+    protected function hasSubCommand()
+    {
+        foreach ($this->commands as $key => $item) {
+            if (strpos($key, ' ') !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -142,8 +157,8 @@ class Application extends \Mix\Core\Application
         println('');
         println('Commands:');
         foreach ($this->commands as $key => $item) {
-            $command = $key;
-            $subCommand = '';
+            $command     = $key;
+            $subCommand  = '';
             $description = $item['description'] ?? '';
             if (strpos($key, ' ') !== false) {
                 list($command, $subCommand) = explode(' ', $key);
@@ -181,7 +196,7 @@ class Application extends \Mix\Core\Application
                     $flags[] = "--{$name}";
                 }
             }
-            $flag = implode(', ', $flags);
+            $flag        = implode(', ', $flags);
             $description = $option['description'] ?? '';
             println("  {$flag}\t{$description}");
         }
@@ -204,11 +219,11 @@ class Application extends \Mix\Core\Application
         if (is_array($shortClass)) {
             $shortClass = array_shift($shortClass);
         }
-        $shortClass = str_replace('/', "\\", $shortClass);
-        $commandDir = \Mix\Helper\FileSystemHelper::dirname($shortClass);
-        $commandDir = $commandDir == '.' ? '' : "$commandDir\\";
-        $commandName = \Mix\Helper\FileSystemHelper::basename($shortClass);
-        $commandClass = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
+        $shortClass    = str_replace('/', "\\", $shortClass);
+        $commandDir    = \Mix\Helper\FileSystemHelper::dirname($shortClass);
+        $commandDir    = $commandDir == '.' ? '' : "$commandDir\\";
+        $commandName   = \Mix\Helper\FileSystemHelper::basename($shortClass);
+        $commandClass  = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
         $commandAction = 'main';
         // 判断类是否存在
         if (!class_exists($commandClass)) {
@@ -231,7 +246,7 @@ class Application extends \Mix\Core\Application
      */
     protected function validateOptions($command)
     {
-        $options = $this->commands[$command]['options'] ?? [];
+        $options  = $this->commands[$command]['options'] ?? [];
         $regflags = [];
         foreach ($options as $option) {
             $names = array_shift($option);
@@ -248,9 +263,9 @@ class Application extends \Mix\Core\Application
         }
         foreach (array_keys(Flag::options()) as $flag) {
             if (!in_array($flag, $regflags)) {
-                $script = Arguments::script();
-                $command = Arguments::command();
-                $subCommand = Arguments::subCommand();
+                $script      = Arguments::script();
+                $command     = Arguments::command();
+                $subCommand  = Arguments::subCommand();
                 $fullCommand = $command . ($subCommand ? " {$subCommand}" : '');
                 throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} {$fullCommand} --help'.");
             }
