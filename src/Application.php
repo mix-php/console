@@ -131,8 +131,8 @@ class Application extends \Mix\Core\Application
         $tabs = $this->hasSubCommand() ? "\t\t" : "\t";
         println('');
         println('Options:');
-        println("  -h, --help{$tabs}Print usage.");
-        println("  -v, --version{$tabs}Print version information.");
+        println("  -h, --help{$tabs}Print usage");
+        println("  -v, --version{$tabs}Print version information");
     }
 
     /**
