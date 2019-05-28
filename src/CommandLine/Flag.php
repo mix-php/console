@@ -41,7 +41,8 @@ class Flag
                 list($name, $value) = explode('=', $item);
             }
             if (substr($name, 0, 2) == '--' || substr($name, 0, 1) == '-') {
-                if (substr($name, 0, 1) == '-' && $value === '' && isset($argv[$key + 1])) {
+                // 无值参数处理
+                if (substr($name, 0, 1) == '-' && $value === '' && isset($argv[$key + 1]) && substr($argv[$key + 1], 0, 1) != '-') {
                     $next = $argv[$key + 1];
                     if (preg_match('/^[\S\s]+$/i', $next)) {
                         $value = $next;
@@ -63,21 +64,22 @@ class Flag
      * @param bool $default
      * @return bool
      */
-    public static function bool($name, $default = false)
+    public static function bool($name, bool $default = false)
     {
-        foreach (self::$_options as $key => $value) {
-            $names = [$name];
-            if (is_array($name)) {
-                $names = $name;
+        $names = [$name];
+        if (is_array($name)) {
+            $names = $name;
+        }
+        $flags = [];
+        foreach ($names as $item) {
+            if (strlen($item) == 1) {
+                $flags[] = "-{$item}";
+            } else {
+                $flags[] = "--{$item}";
             }
-            foreach ($names as $item) {
-                if (strlen($item) == 1) {
-                    $names[] = "-{$item}";
-                } else {
-                    $names[] = "--{$item}";
-                }
-            }
-            if (in_array($key, $names)) {
+        }
+        foreach (static::options() as $key => $value) {
+            if (in_array($key, $flags)) {
                 if ($value === 'false') {
                     return false;
                 }
@@ -93,21 +95,22 @@ class Flag
      * @param string $default
      * @return string
      */
-    public static function string($name, $default = '')
+    public static function string($name, string $default = '')
     {
-        foreach (self::$_options as $key => $value) {
-            $names = [$name];
-            if (is_array($name)) {
-                $names = $name;
+        $names = [$name];
+        if (is_array($name)) {
+            $names = $name;
+        }
+        $flags = [];
+        foreach ($names as $item) {
+            if (strlen($item) == 1) {
+                $flags[] = "-{$item}";
+            } else {
+                $flags[] = "--{$item}";
             }
-            foreach ($names as $item) {
-                if (strlen($item) == 1) {
-                    $names[] = "-{$item}";
-                } else {
-                    $names[] = "--{$item}";
-                }
-            }
-            if (in_array($key, $names)) {
+        }
+        foreach (static::options() as $key => $value) {
+            if (in_array($key, $flags)) {
                 if ($value === '') {
                     return $default;
                 }
@@ -137,9 +140,11 @@ class Flag
         foreach ($options as $flag => $value) {
             if (substr($flag, 0, 2) == '--') {
                 $values[substr($flag, 2)] = $value;
+                continue;
             }
             if (substr($flag, 0, 1) == '-') {
                 $values[substr($flag, 1)] = $value;
+                continue;
             }
         }
         return $values;
