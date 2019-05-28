@@ -3,8 +3,8 @@
 namespace Mix\Console\CommandLine;
 
 /**
- * Class Flags
- * @package Mix\Console
+ * Class Flag
+ * @package Mix\Console\CommandLine
  * @author liu,jian <coder.keda@gmail.com>
  */
 class Flag
@@ -16,15 +16,17 @@ class Flag
      */
     protected static $_options = [];
 
-    // 初始化
+    /**
+     * 初始化
+     */
     public static function initialize()
     {
         // 解析全部选项
         $start = 2;
-        if (Arguments::subCommand() == '') {
+        if (Argument::subCommand() == '') {
             $start = 1;
         }
-        if (Arguments::command() == '') {
+        if (Argument::command() == '') {
             $start = 0;
         }
         $argv = $GLOBALS['argv'];
@@ -122,6 +124,25 @@ class Flag
     public static function options()
     {
         return self::$_options;
+    }
+
+    /**
+     * 全部命令行值
+     * @return array
+     */
+    public static function values()
+    {
+        $options = static::options();
+        $values  = [];
+        foreach ($options as $flag => $value) {
+            if (substr($flag, 0, 2) == '--') {
+                $values[substr($flag, 2)] = $value;
+            }
+            if (substr($flag, 0, 1) == '-') {
+                $values[substr($flag, 1)] = $value;
+            }
+        }
+        return $values;
     }
 
 }

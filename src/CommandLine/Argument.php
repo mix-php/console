@@ -3,11 +3,11 @@
 namespace Mix\Console\CommandLine;
 
 /**
- * Class Arguments
+ * Class Argument
  * @package Mix\Console
  * @author liu,jian <coder.keda@gmail.com>
  */
-class Arguments
+class Argument
 {
 
     /**

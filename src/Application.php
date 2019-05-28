@@ -2,7 +2,7 @@
 
 namespace Mix\Console;
 
-use Mix\Console\CommandLine\Arguments;
+use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Core\Coroutine;
 
@@ -58,7 +58,7 @@ class Application extends \Mix\Core\Application
             throw new \RuntimeException('Please run in CLI mode.');
         }
         Flag::initialize();
-        if (Arguments::subCommand() == '' && Arguments::command() == '') {
+        if (Argument::subCommand() == '' && Argument::command() == '') {
             if (Flag::bool(['h', 'help'], false)) {
                 $this->help();
                 return;
@@ -74,14 +74,14 @@ class Application extends \Mix\Core\Application
             }
             $keys   = array_keys($options);
             $flag   = array_shift($keys);
-            $script = Arguments::script();
+            $script = Argument::script();
             throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'.");
         }
-        if ((Arguments::command() !== '' || Arguments::subCommand() !== '') && Flag::bool(['h', 'help'], false)) {
+        if ((Argument::command() !== '' || Argument::subCommand() !== '') && Flag::bool(['h', 'help'], false)) {
             $this->commandHelp();
             return;
         }
-        $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
+        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
         return $this->runAction($command);
     }
 
@@ -90,7 +90,7 @@ class Application extends \Mix\Core\Application
      */
     protected function help()
     {
-        $script = Arguments::script();
+        $script = Argument::script();
         println("Usage: {$script} [OPTIONS] COMMAND [SUBCOMMAND] [arg...]");
         $this->printOptions();
         $this->printCommands();
@@ -105,8 +105,8 @@ class Application extends \Mix\Core\Application
      */
     protected function commandHelp()
     {
-        $script  = Arguments::script();
-        $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
+        $script  = Argument::script();
+        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
         println("Usage: {$script} {$command} [arg...]");
         $this->printCommandOptions();
         println("Developed with Mix PHP framework. (mixphp.cn)");
@@ -176,7 +176,7 @@ class Application extends \Mix\Core\Application
      */
     protected function printCommandOptions()
     {
-        $command = trim(implode(' ', [Arguments::command(), Arguments::subCommand()]));
+        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
         if (!isset($this->commands[$command]['options'])) {
             return;
         }
@@ -211,7 +211,7 @@ class Application extends \Mix\Core\Application
     public function runAction($command)
     {
         if (!isset($this->commands[$command])) {
-            $script = Arguments::script();
+            $script = Argument::script();
             throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
         }
         // 实例化控制器
@@ -263,9 +263,9 @@ class Application extends \Mix\Core\Application
         }
         foreach (array_keys(Flag::options()) as $flag) {
             if (!in_array($flag, $regflags)) {
-                $script      = Arguments::script();
-                $command     = Arguments::command();
-                $subCommand  = Arguments::subCommand();
+                $script      = Argument::script();
+                $command     = Argument::command();
+                $subCommand  = Argument::subCommand();
                 $fullCommand = $command . ($subCommand ? " {$subCommand}" : '');
                 throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} {$fullCommand} --help'.");
             }
