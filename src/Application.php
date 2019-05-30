@@ -15,18 +15,6 @@ class Application extends \Mix\Core\Application
 {
 
     /**
-     * 应用名称
-     * @var string
-     */
-    public $appName = 'app-console';
-
-    /**
-     * 应用版本
-     * @var string
-     */
-    public $appVersion = '0.0.0';
-
-    /**
      * 命令命名空间
      * @var string
      */
