@@ -91,7 +91,7 @@ class Application extends \Mix\Core\Application
     protected function help()
     {
         $script = Argument::script();
-        println("Usage: {$script} [OPTIONS] COMMAND [SUBCOMMAND] [arg...]");
+        println("Usage: {$script} [OPTIONS] COMMAND [SUBCOMMAND] [opt...]");
         $this->printOptions();
         $this->printCommands();
         println('');
@@ -107,7 +107,7 @@ class Application extends \Mix\Core\Application
     {
         $script  = Argument::script();
         $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
-        println("Usage: {$script} {$command} [arg...]");
+        println("Usage: {$script} {$command} [opt...]");
         $this->printCommandOptions();
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
