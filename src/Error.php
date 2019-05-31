@@ -35,7 +35,7 @@ class Error extends AbstractComponent
         ];
         // 日志处理
         if (!($e instanceof \Mix\Exception\NotFoundException)) {
-            self::log($errors);
+            static::log($errors);
             return;
         }
         // 打印到屏幕
