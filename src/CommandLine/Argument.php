@@ -30,7 +30,7 @@ class Argument
         if (!isset($command)) {
             $argv    = $GLOBALS['argv'];
             $command = $argv[1] ?? '';
-            $command = preg_match('/^[a-z0-9]+$/i', $command) ? $command : '';
+            $command = preg_match('/^[a-zA-Z0-9_\-:]+$/i', $command) ? $command : '';
         }
         return $command;
     }
@@ -48,7 +48,7 @@ class Argument
         if (!isset($subCommand)) {
             $argv       = $GLOBALS['argv'];
             $subCommand = $argv[2] ?? '';
-            $subCommand = preg_match('/^[a-z0-9]+$/i', $subCommand) ? $subCommand : '';
+            $subCommand = preg_match('/^[a-zA-Z0-9_\-:]+$/i', $subCommand) ? $subCommand : '';
         }
         return $subCommand;
     }
