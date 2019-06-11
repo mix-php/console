@@ -50,7 +50,7 @@ class Argument
             $argv       = $GLOBALS['argv'];
             $subCommand = $argv[2] ?? '';
             $subCommand = preg_match('/^[a-zA-Z0-9_\-:]+$/i', $subCommand) ? $subCommand : '';
-            $command    = substr($command, 0, 1) == '-' ? '' : $command;
+            $subCommand = substr($subCommand, 0, 1) == '-' ? '' : $subCommand;
         }
         return $subCommand;
     }
