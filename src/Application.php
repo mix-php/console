@@ -265,10 +265,22 @@ class Application extends \Mix\Core\Application
      * @param $name
      * @return \Mix\Core\Component\ComponentInterface
      */
-    public function __get($name)
+    public function get($name)
     {
         // 从容器返回组件
         return $this->container->get($name);
+    }
+
+    /**
+     * 获取组件
+     * 为了兼容旧版本，保留这个方法
+     * 由于PHP 的 __get 魔术方法，不让并行调用同名属性，导致无法包含协程切换 https://github.com/swoole/swoole-src/issues/2625
+     * @param $name
+     * @return \Mix\Core\Component\ComponentInterface
+     */
+    public function __get($name)
+    {
+        return $this->get($name);
     }
 
 }
