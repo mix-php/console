@@ -4,6 +4,7 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
+use Mix\Core\Application\ComponentInitializeTrait;
 use Mix\Core\Coroutine;
 
 /**
@@ -13,6 +14,8 @@ use Mix\Core\Coroutine;
  */
 class Application extends \Mix\Core\Application
 {
+
+    use ComponentInitializeTrait;
 
     /**
      * 命令命名空间
@@ -258,29 +261,6 @@ class Application extends \Mix\Core\Application
                 throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} {$fullCommand} --help'.");
             }
         }
-    }
-
-    /**
-     * 获取组件
-     * @param $name
-     * @return \Mix\Core\Component\ComponentInterface
-     */
-    public function get($name)
-    {
-        // 从容器返回组件
-        return $this->container->get($name);
-    }
-
-    /**
-     * 获取组件
-     * 为了兼容旧版本，保留这个方法
-     * 由于PHP 的 __get 魔术方法，不让并行调用同名属性，导致无法包含协程切换 https://github.com/swoole/swoole-src/issues/2625
-     * @param $name
-     * @return \Mix\Core\Component\ComponentInterface
-     */
-    public function __get($name)
-    {
-        return $this->get($name);
     }
 
 }
