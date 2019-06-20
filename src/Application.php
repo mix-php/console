@@ -4,7 +4,7 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
-use Mix\Core\Coroutine;
+use Mix\Concurrent\Coroutine;
 
 /**
  * Class Application
