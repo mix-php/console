@@ -4,7 +4,6 @@ namespace Mix\Console;
 
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
-use Mix\Core\Application\ComponentInitializeTrait;
 use Mix\Core\Coroutine;
 
 /**
@@ -14,8 +13,6 @@ use Mix\Core\Coroutine;
  */
 class Application extends \Mix\Core\Application
 {
-
-    use ComponentInitializeTrait;
 
     /**
      * 命令命名空间
