@@ -2,7 +2,7 @@
 
 namespace Mix\Console;
 
-use Mix\Core\Component\AbstractComponent;
+use Mix\Component\AbstractComponent;
 
 /**
  * Class Error
