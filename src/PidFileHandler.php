@@ -2,7 +2,7 @@
 
 namespace Mix\Console;
 
-use Mix\Core\Bean\AbstractObject;
+use Mix\Bean\Object\AbstractObject;
 use Mix\Helper\ProcessHelper;
 
 /**
