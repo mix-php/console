@@ -2,7 +2,7 @@
 
 namespace Mix\Console;
 
-use Mix\Bean\Object\AbstractObject;
+use Mix\Bean\BeanInjector;
 use Mix\Helper\ProcessHelper;
 
 /**
@@ -10,7 +10,7 @@ use Mix\Helper\ProcessHelper;
  * @package Mix\Console
  * @author liu,jian <coder.keda@gmail.com>
  */
-class PidFileHandler extends AbstractObject
+class PidFileHandler
 {
 
     /**
@@ -18,6 +18,15 @@ class PidFileHandler extends AbstractObject
      * @var string
      */
     public $pidFile = '';
+
+    /**
+     * Authorization constructor.
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        BeanInjector::inject($this, $config);
+    }
 
     /**
      * 写入

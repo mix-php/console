@@ -2,14 +2,14 @@
 
 namespace Mix\Console;
 
-use Mix\Component\AbstractComponent;
+use Mix\Bean\BeanInjector;
 
 /**
  * Class Error
  * @package Mix\Console
  * @author liu,jian <coder.keda@gmail.com>
  */
-class Error extends AbstractComponent
+class Error
 {
 
     /**
@@ -19,10 +19,19 @@ class Error extends AbstractComponent
     public $level = E_ALL;
 
     /**
-     * 异常处理
-     * @param $e
+     * Authorization constructor.
+     * @param array $config
      */
-    public function handleException($e)
+    public function __construct(array $config)
+    {
+        BeanInjector::inject($this, $config);
+    }
+
+    /**
+     * 异常处理
+     * @param \Throwable $e
+     */
+    public function handleException(\Throwable $e)
     {
         // 错误参数定义
         $errors = [
@@ -44,9 +53,9 @@ class Error extends AbstractComponent
 
     /**
      * 写入日志
-     * @param $errors
+     * @param array $errors
      */
-    protected static function log($errors)
+    protected static function log(array $errors)
     {
         // 构造消息
         $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n[trace] {trace}";
