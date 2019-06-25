@@ -1,11 +1,11 @@
-## Mix Concurrent
+## Mix Console
 
 ...
 
 ## Usage
 
 ```
-composer require mix/concurrent
+composer require mix/console
 ```
 
 ## License
