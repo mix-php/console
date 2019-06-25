@@ -27,6 +27,17 @@ class Application extends \Mix\Core\Application
     public $commands = [];
 
     /**
+     * Application constructor.
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
+        // 保存引用
+        \Mix::$app = $this;
+    }
+
+    /**
      * 执行功能 (CLI模式)
      * @return mixed
      */
