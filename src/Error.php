@@ -3,6 +3,7 @@
 namespace Mix\Console;
 
 use Mix\Bean\BeanInjector;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Error
@@ -57,6 +58,8 @@ class Error
      */
     protected static function log(array $errors)
     {
+        /** @var LoggerInterface $log */
+        $log = \Mix::$app->get('log');
         // 构造消息
         $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n[trace] {trace}";
         if (!\Mix::$app->appDebug) {
@@ -66,13 +69,13 @@ class Error
         $level = \Mix\Core\Error::getLevel($errors['code']);
         switch ($level) {
             case 'error':
-                \Mix::$app->log->error($message, $errors);
+                $log->error($message, $errors);
                 break;
             case 'warning':
-                \Mix::$app->log->warning($message, $errors);
+                $log->warning($message, $errors);
                 break;
             case 'notice':
-                \Mix::$app->log->notice($message, $errors);
+                $log->notice($message, $errors);
                 break;
         }
     }
