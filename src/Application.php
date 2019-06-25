@@ -35,6 +35,8 @@ class Application extends \Mix\Core\Application
         parent::__construct($config);
         // 保存引用
         \Mix::$app = $this;
+        // 错误注册
+        \Mix\Core\Error::register();
     }
 
     /**
