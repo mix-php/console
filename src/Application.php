@@ -27,6 +27,12 @@ class Application extends \Mix\Core\Application
     public $commands = [];
 
     /**
+     * 是否为单命令
+     * @var bool
+     */
+    public $isSingle;
+
+    /**
      * Application constructor.
      * @param array $config
      */
@@ -37,6 +43,10 @@ class Application extends \Mix\Core\Application
         \Mix::$app = $this;
         // 错误注册
         \Mix\Core\Error::register();
+        // 是否为单命令
+        $commands       = $this->commands;
+        $frist          = array_shift($commands);
+        $this->isSingle = is_string($frist);
     }
 
     /**
@@ -48,8 +58,8 @@ class Application extends \Mix\Core\Application
         if (PHP_SAPI != 'cli') {
             throw new \RuntimeException('Please run in CLI mode.');
         }
-        Flag::initialize();
-        if (Argument::subCommand() == '' && Argument::command() == '') {
+        Flag::init();
+        if (Argument::command() == '') {
             if (Flag::bool(['h', 'help'], false)) {
                 $this->help();
                 return;
@@ -62,18 +72,21 @@ class Application extends \Mix\Core\Application
             if (empty($options)) {
                 $this->help();
                 return;
+            } elseif ($this->isSingle) {
+                // 单命令执行
+                return $this->runAction(Argument::command());
             }
             $keys   = array_keys($options);
             $flag   = array_shift($keys);
             $script = Argument::script();
-            throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'.");
+            throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'."); // 这里只是全局flag效验
         }
-        if ((Argument::command() !== '' || Argument::subCommand() !== '') && Flag::bool(['h', 'help'], false)) {
+        if (Argument::command() !== '' && Flag::bool(['h', 'help'], false)) {
             $this->commandHelp();
             return;
         }
-        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
-        return $this->runAction($command);
+        // 非单命令执行
+        return $this->runAction(Argument::command());
     }
 
     /**
@@ -82,11 +95,15 @@ class Application extends \Mix\Core\Application
     protected function help()
     {
         $script = Argument::script();
-        println("Usage: {$script} [OPTIONS] COMMAND [SUBCOMMAND] [opt...]");
+        println("Usage: {$script} [OPTIONS] COMMAND [opt...]");
         $this->printOptions();
-        $this->printCommands();
+        if (!$this->isSingle) {
+            $this->printCommands();
+        } else {
+            $this->printCommandOptions();
+        }
         println('');
-        println("Run '{$script} COMMAND [SUBCOMMAND] --help' for more information on a command.");
+        println("Run '{$script} COMMAND --help' for more information on a command.");
         println('');
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
@@ -97,9 +114,10 @@ class Application extends \Mix\Core\Application
     protected function commandHelp()
     {
         $script  = Argument::script();
-        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
+        $command = Argument::command();
         println("Usage: {$script} {$command} [opt...]");
         $this->printCommandOptions();
+        println('');
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
 
@@ -119,25 +137,11 @@ class Application extends \Mix\Core\Application
      */
     protected function printOptions()
     {
-        $tabs = $this->hasSubCommand() ? "\t\t" : "\t";
+        $tabs = "\t";
         println('');
-        println('Options:');
+        println('Global Options:');
         println("  -h, --help{$tabs}Print usage");
         println("  -v, --version{$tabs}Print version information");
-    }
-
-    /**
-     * 有子命令
-     * @return bool
-     */
-    protected function hasSubCommand()
-    {
-        foreach ($this->commands as $key => $item) {
-            if (strpos($key, ' ') !== false) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -167,13 +171,22 @@ class Application extends \Mix\Core\Application
      */
     protected function printCommandOptions()
     {
-        $command = trim(implode(' ', [Argument::command(), Argument::subCommand()]));
-        if (!isset($this->commands[$command]['options'])) {
+        $command = Argument::command();
+        $options = [];
+        if (!$this->isSingle) {
+            if (isset($this->commands[$command]['options'])) {
+                $options = $this->commands[$command]['options'];
+            }
+        } else {
+            if (isset($this->commands['options'])) {
+                $options = $this->commands['options'];
+            }
+        }
+        if (empty($options)) {
             return;
         }
-        $options = $this->commands[$command]['options'];
         println('');
-        println('Options:');
+        println('Command Options:');
         foreach ($options as $option) {
             $names = array_shift($option);
             if (is_string($names)) {
@@ -191,7 +204,6 @@ class Application extends \Mix\Core\Application
             $description = $option['description'] ?? '';
             println("  {$flag}\t{$description}");
         }
-        println('');
     }
 
     /**
@@ -201,15 +213,22 @@ class Application extends \Mix\Core\Application
      */
     public function runAction($command)
     {
-        if (!isset($this->commands[$command])) {
-            $script = Argument::script();
-            throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
+        // 提取类前缀
+        $shortClass = '';
+        if (!$this->isSingle) {
+            if (!isset($this->commands[$command])) {
+                $script = Argument::script();
+                throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
+            }
+            $shortClass = $this->commands[$command];
+            if (is_array($shortClass)) {
+                $shortClass = array_shift($shortClass);
+            }
+        } else {
+            $tmp        = $this->commands;
+            $shortClass = array_shift($tmp);
         }
-        // 实例化控制器
-        $shortClass = $this->commands[$command];
-        if (is_array($shortClass)) {
-            $shortClass = array_shift($shortClass);
-        }
+        // 生成类名，方法名
         $shortClass    = str_replace('/', "\\", $shortClass);
         $commandDir    = \Mix\Helper\FileSystemHelper::dirname($shortClass);
         $commandDir    = $commandDir == '.' ? '' : "$commandDir\\";
@@ -220,6 +239,7 @@ class Application extends \Mix\Core\Application
         if (!class_exists($commandClass)) {
             throw new \Mix\Exception\CommandException("'{$commandClass}' class not found.");
         }
+        // 实例化
         $commandInstance = new $commandClass();
         // 判断方法是否存在
         if (!method_exists($commandInstance, $commandAction)) {
@@ -237,7 +257,12 @@ class Application extends \Mix\Core\Application
      */
     protected function validateOptions($command)
     {
-        $options  = $this->commands[$command]['options'] ?? [];
+        $options = [];
+        if (!$this->isSingle) {
+            $options = $this->commands[$command]['options'] ?? [];
+        } else {
+            $options = $this->commands['options'] ?? [];
+        }
         $regflags = [];
         foreach ($options as $option) {
             $names = array_shift($option);
@@ -254,11 +279,10 @@ class Application extends \Mix\Core\Application
         }
         foreach (array_keys(Flag::options()) as $flag) {
             if (!in_array($flag, $regflags)) {
-                $script      = Argument::script();
-                $command     = Argument::command();
-                $subCommand  = Argument::subCommand();
-                $fullCommand = $command . ($subCommand ? " {$subCommand}" : '');
-                throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} {$fullCommand} --help'.");
+                $script  = Argument::script();
+                $command = Argument::command();
+                $command = $command ? " {$command}" : $command;
+                throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script}{$command} --help'.");
             }
         }
     }

@@ -33,26 +33,7 @@ class Argument
             $command = preg_match('/^[a-zA-Z0-9_\-:]+$/i', $command) ? $command : '';
             $command = substr($command, 0, 1) == '-' ? '' : $command;
         }
-        return $command;
-    }
-
-    /**
-     * 获取子命令
-     * @return string
-     */
-    public static function subCommand()
-    {
-        if (self::command() == '') {
-            return '';
-        }
-        static $subCommand;
-        if (!isset($subCommand)) {
-            $argv       = $GLOBALS['argv'];
-            $subCommand = $argv[2] ?? '';
-            $subCommand = preg_match('/^[a-zA-Z0-9_\-:]+$/i', $subCommand) ? $subCommand : '';
-            $subCommand = substr($subCommand, 0, 1) == '-' ? '' : $subCommand;
-        }
-        return $subCommand;
+        return trim($command);
     }
 
 }

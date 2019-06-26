@@ -19,13 +19,10 @@ class Flag
     /**
      * 初始化
      */
-    public static function initialize()
+    public static function init()
     {
         // 解析全部选项
-        $start = 2;
-        if (Argument::subCommand() == '') {
-            $start = 1;
-        }
+        $start = 1;
         if (Argument::command() == '') {
             $start = 0;
         }
