@@ -30,7 +30,7 @@ class Application extends \Mix\Core\Application
      * 是否为单命令
      * @var bool
      */
-    public $isSingle;
+    protected $isSingle;
 
     /**
      * Application constructor.
