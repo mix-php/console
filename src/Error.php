@@ -44,16 +44,17 @@ class Error
             'trace'   => $e->getTraceAsString(),
         ];
         // 日志处理
-        if (!($e instanceof \Mix\Exception\NotFoundException)) {
-            static::log($errors);
+        if ($e instanceof \Mix\Exception\NotFoundException) {
+            // 打印到屏幕
+            println($errors['message']);
             return;
         }
-        // 打印到屏幕
-        println($errors['message']);
+        // 输出日志
+        static::log($errors);
     }
 
     /**
-     * 写入日志
+     * 输出日志
      * @param array $errors
      */
     protected static function log(array $errors)
