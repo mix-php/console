@@ -30,7 +30,7 @@ class Application extends \Mix\Core\Application
      * 是否为单命令
      * @var bool
      */
-    protected $isSingle;
+    protected $isSingleCommand;
 
     /**
      * Application constructor.
@@ -44,9 +44,9 @@ class Application extends \Mix\Core\Application
         // 错误注册
         \Mix\Core\Error::register();
         // 是否为单命令
-        $commands       = $this->commands;
-        $frist          = array_shift($commands);
-        $this->isSingle = is_string($frist);
+        $commands              = $this->commands;
+        $frist                 = array_shift($commands);
+        $this->isSingleCommand = is_string($frist);
     }
 
     /**
@@ -72,7 +72,7 @@ class Application extends \Mix\Core\Application
             if (empty($options)) {
                 $this->help();
                 return;
-            } elseif ($this->isSingle) {
+            } elseif ($this->isSingleCommand) {
                 // 单命令执行
                 return $this->runAction(Argument::command());
             }
@@ -97,7 +97,7 @@ class Application extends \Mix\Core\Application
         $script = Argument::script();
         println("Usage: {$script} [OPTIONS] COMMAND [opt...]");
         $this->printOptions();
-        if (!$this->isSingle) {
+        if (!$this->isSingleCommand) {
             $this->printCommands();
         } else {
             $this->printCommandOptions();
@@ -173,7 +173,7 @@ class Application extends \Mix\Core\Application
     {
         $command = Argument::command();
         $options = [];
-        if (!$this->isSingle) {
+        if (!$this->isSingleCommand) {
             if (isset($this->commands[$command]['options'])) {
                 $options = $this->commands[$command]['options'];
             }
@@ -213,26 +213,21 @@ class Application extends \Mix\Core\Application
      */
     public function runAction($command)
     {
-        // 提取类前缀
-        $shortClass = '';
-        if (!$this->isSingle) {
+        // 生成类名，方法名
+        $commandClass = '';
+        if (!$this->isSingleCommand) {
             if (!isset($this->commands[$command])) {
                 $script = Argument::script();
                 throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
             }
-            $shortClass = $this->commands[$command];
-            if (is_array($shortClass)) {
-                $shortClass = array_shift($shortClass);
+            $commandClass = $this->commands[$command];
+            if (is_array($commandClass)) {
+                $commandClass = array_shift($commandClass);
             }
         } else {
-            $tmp        = $this->commands;
-            $shortClass = array_shift($tmp);
+            $tmp          = $this->commands;
+            $commandClass = array_shift($tmp);
         }
-        // 生成类名，方法名
-        $shortClass    = str_replace('/', "\\", $shortClass);
-        $commandDir    = \Mix\Helper\FileSystemHelper::dirname($shortClass);
-        $commandDir    = $commandDir == '.' ? '' : "$commandDir\\";
-        $commandName   = \Mix\Helper\FileSystemHelper::basename($shortClass);
         $commandClass  = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
         $commandAction = 'main';
         // 判断类是否存在
@@ -258,7 +253,7 @@ class Application extends \Mix\Core\Application
     protected function validateOptions($command)
     {
         $options = [];
-        if (!$this->isSingle) {
+        if (!$this->isSingleCommand) {
             $options = $this->commands[$command]['options'] ?? [];
         } else {
             $options = $this->commands['options'] ?? [];
