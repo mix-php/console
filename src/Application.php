@@ -15,12 +15,6 @@ class Application extends \Mix\Core\Application
 {
 
     /**
-     * 命令命名空间
-     * @var string
-     */
-    public $commandNamespace = '';
-
-    /**
      * 命令
      * @var array
      */
@@ -228,7 +222,6 @@ class Application extends \Mix\Core\Application
             $tmp          = $this->commands;
             $commandClass = array_shift($tmp);
         }
-        $commandClass  = "{$this->commandNamespace}\\{$commandDir}{$commandName}Command";
         $commandAction = 'main';
         // 判断类是否存在
         if (!class_exists($commandClass)) {
