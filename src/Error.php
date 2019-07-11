@@ -2,7 +2,6 @@
 
 namespace Mix\Console;
 
-use Mix\Bean\BeanInjector;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -20,12 +19,14 @@ class Error
     public $level = E_ALL;
 
     /**
-     * Authorization constructor.
-     * @param array $config
+     * Error constructor.
+     * @param int $level
+     * @throws \PhpDocReader\AnnotationException
+     * @throws \ReflectionException
      */
-    public function __construct(array $config)
+    public function __construct(int $level)
     {
-        BeanInjector::inject($this, $config);
+        $this->level = $level;
     }
 
     /**
