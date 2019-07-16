@@ -2,6 +2,7 @@
 
 namespace Mix\Console;
 
+use Mix\Console\Exception\ErrorException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -13,20 +14,159 @@ class Error
 {
 
     /**
-     * 错误级别
      * @var int
      */
     public $level = E_ALL;
 
     /**
+     * @var LoggerInterface
+     */
+    public $logger;
+
+    /**
      * Error constructor.
      * @param int $level
-     * @throws \PhpDocReader\AnnotationException
-     * @throws \ReflectionException
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(int $level)
+    public function __construct(int $level, LoggerInterface $logger = null)
     {
-        $this->level = $level;
+        $this->level  = $level;
+        $this->logger = $logger;
+    }
+
+    /**
+     * 注册错误处理
+     */
+    public function register()
+    {
+        // 设置错误级别
+        $level = $this->level;
+        if (error_reporting() !== $level) {
+            error_reporting($level);
+        }
+        // 注册错误处理
+        set_error_handler([$this, 'appError']);
+        set_exception_handler([$this, 'appException']); // swoole 不支持该函数
+        register_shutdown_function([$this, 'appShutdown']);
+    }
+
+    /**
+     * 错误处理
+     * @param $errno
+     * @param $errstr
+     * @param string $errfile
+     * @param int $errline
+     */
+    public function appError($errno, $errstr, $errfile = '', $errline = 0)
+    {
+        if (error_reporting() & $errno) {
+            // 委托给异常处理
+            if (static::isFatalWarning($errno, $errstr)) {
+                $this->appException(new ErrorException($errno, $errstr, $errfile, $errline));
+                return;
+            }
+            // 转换为异常抛出
+            throw new ErrorException($errno, $errstr, $errfile, $errline);
+        }
+    }
+
+    /**
+     * 停止处理
+     */
+    public function appShutdown()
+    {
+        if (!is_null($error = error_get_last()) && static::isFatal($error['type'])) {
+            // 委托给异常处理
+            $this->appException(new ErrorException($error['type'], $error['message'], $error['file'], $error['line']));
+        }
+    }
+
+    /**
+     * 异常处理
+     * @param $e
+     */
+    public function appException($e)
+    {
+        /** @var \Mix\Console\Error $error */
+        $error = \Mix::$app->get('error');
+        $error->handleException($e);
+    }
+
+    /**
+     * 返回错误级别
+     * @param $errno
+     * @return string
+     */
+    public static function levelType($errno)
+    {
+        if (static::isError($errno)) {
+            return 'error';
+        }
+        if (static::isWarning($errno)) {
+            return 'warning';
+        }
+        if (static::isNotice($errno)) {
+            return 'notice';
+        }
+        return 'error';
+    }
+
+    /**
+     * 是否错误类型
+     * 全部类型：http://php.net/manual/zh/errorfunc.constants.php
+     * @param $type
+     * @return bool
+     */
+    public static function isError($errno)
+    {
+        return in_array($errno, [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR]);
+    }
+
+    /**
+     * 是否警告类型
+     * 全部类型：http://php.net/manual/zh/errorfunc.constants.php
+     * @param $type
+     * @return bool
+     */
+    public static function isWarning($errno)
+    {
+        return in_array($errno, [E_WARNING, E_CORE_WARNING, E_COMPILE_WARNING, E_USER_WARNING]);
+    }
+
+    /**
+     * 是否通知类型
+     * 全部类型：http://php.net/manual/zh/errorfunc.constants.php
+     * @param $type
+     * @return bool
+     */
+    public static function isNotice($errno)
+    {
+        return in_array($errno, [E_NOTICE, E_USER_NOTICE, E_DEPRECATED, E_USER_DEPRECATED, E_STRICT]);
+    }
+
+    /**
+     * 是否为致命错误
+     * @param $errno
+     * @return bool
+     */
+    public static function isFatal($errno)
+    {
+        return in_array($errno, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE]);
+    }
+
+    /**
+     * 是否致命警告类型
+     * 特殊的警告，出现后 try/catch 将无法捕获异常。
+     * @param $errno
+     * @param $errstr
+     * @return bool
+     */
+    public static function isFatalWarning($errno, $errstr)
+    {
+        if ($errno == E_WARNING && strpos($errstr, 'require') === 0) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -51,33 +191,32 @@ class Error
             return;
         }
         // 输出日志
-        static::log($errors);
+        $this->log($errors);
     }
 
     /**
      * 输出日志
      * @param array $errors
      */
-    protected static function log(array $errors)
+    protected function log(array $errors)
     {
-        /** @var LoggerInterface $log */
-        $log = \Mix::$app->get('log');
+        $logger = $this->logger;
         // 构造消息
         $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n[trace] {trace}";
         if (!\Mix::$app->appDebug) {
             $message = "{message} [{code}] {type} in {file} line {line}";
         }
         // 写入
-        $level = \Mix\Core\Error::getLevel($errors['code']);
+        $level = static::levelType($errors['code']);
         switch ($level) {
             case 'error':
-                $log->error($message, $errors);
+                $logger->error($message, $errors);
                 break;
             case 'warning':
-                $log->warning($message, $errors);
+                $logger->warning($message, $errors);
                 break;
             case 'notice':
-                $log->notice($message, $errors);
+                $logger->notice($message, $errors);
                 break;
         }
     }

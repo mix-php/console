@@ -24,6 +24,12 @@
   "autoload": {
     "psr-4": {
       "Mix\\Console\\": "src/"
-    }
+    },
+    "classmap": [
+      "src/Mix.php"
+    ],
+    "files": [
+      "src/functions.php"
+    ]
   }
 }

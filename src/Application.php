@@ -5,14 +5,76 @@ namespace Mix\Console;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Concurrent\Coroutine;
+use Mix\Console\Exception\ConfigException;
+use Mix\Console\Exception\NotFoundException;
 
 /**
  * Class Application
  * @package Mix\Console
  * @author liu,jian <coder.keda@gmail.com>
  */
-class Application extends \Mix\Core\Application
+class Application
 {
+
+    /**
+     * 应用名称
+     * @var string
+     */
+    public $appName = 'app-console';
+
+    /**
+     * 应用版本
+     * @var string
+     */
+    public $appVersion = '0.0.0';
+
+    /**
+     * 应用调试
+     * @var bool
+     */
+    public $appDebug = true;
+
+    /**
+     * 基础路径
+     * @var string
+     */
+    public $basePath = '';
+
+    /**
+     * 配置路径
+     * @var string
+     */
+    public $configPath = 'config';
+
+    /**
+     * 运行目录路径
+     * @var string
+     */
+    public $runtimePath = 'runtime';
+
+    /**
+     * 公开目录路径
+     * @var string
+     */
+    public $publicPath = 'public';
+
+    /**
+     * 视图目录路径
+     * @var string
+     */
+    public $viewPath = 'views';
+
+    /**
+     * 依赖配置
+     * @var array
+     */
+    public $beans = [];
+
+    /**
+     * Context
+     * @var ApplicationContext
+     */
+    public $context;
 
     /**
      * 命令
@@ -38,7 +100,10 @@ class Application extends \Mix\Core\Application
      */
     public function __construct(array $config)
     {
-        parent::__construct($config);
+        // 注入
+        BeanInjector::inject($this, $config);
+        // 实例化ApplicationContext
+        $this->context = new ApplicationContext($this->beans);
         // 保存引用
         \Mix::$app = $this;
         // 错误注册
@@ -47,6 +112,91 @@ class Application extends \Mix\Core\Application
         $commands              = $this->commands;
         $frist                 = array_shift($commands);
         $this->isSingleCommand = is_string($frist);
+    }
+
+    /**
+     * 获取配置
+     * @param $name
+     * @return mixed
+     */
+    public function getConfig($name)
+    {
+        $message   = "Configuration does not exist: {$name}.";
+        $fragments = explode('.', $name);
+        // 判断一级配置是否存在
+        $first = array_shift($fragments);
+        if (!isset($this->$first)) {
+            throw new ConfigException($message);
+        }
+        // 判断其他配置是否存在
+        $current = $this->$first;
+        foreach ($fragments as $key) {
+            if (!isset($current[$key])) {
+                throw new ConfigException($message);
+            }
+            $current = $current[$key];
+        }
+        return $current;
+    }
+
+    /**
+     * 获取配置目录路径
+     * @return string
+     */
+    public function getConfigPath()
+    {
+        if (!FileSystemHelper::isAbsolute($this->configPath)) {
+            if ($this->configPath == '') {
+                return $this->basePath;
+            }
+            return $this->basePath . DIRECTORY_SEPARATOR . $this->configPath;
+        }
+        return $this->configPath;
+    }
+
+    /**
+     * 获取运行目录路径
+     * @return string
+     */
+    public function getRuntimePath()
+    {
+        if (!FileSystemHelper::isAbsolute($this->runtimePath)) {
+            if ($this->runtimePath == '') {
+                return $this->basePath;
+            }
+            return $this->basePath . DIRECTORY_SEPARATOR . $this->runtimePath;
+        }
+        return $this->runtimePath;
+    }
+
+    /**
+     * 获取视图目录路径
+     * @return string
+     */
+    public function getViewPath()
+    {
+        if (!FileSystemHelper::isAbsolute($this->viewPath)) {
+            if ($this->viewPath == '') {
+                return $this->basePath;
+            }
+            return $this->basePath . DIRECTORY_SEPARATOR . $this->viewPath;
+        }
+        return $this->viewPath;
+    }
+
+    /**
+     * 获取公开目录路径
+     * @return string
+     */
+    public function getPublicPath()
+    {
+        if (!FileSystemHelper::isAbsolute($this->publicPath)) {
+            if ($this->publicPath == '') {
+                return $this->basePath;
+            }
+            return $this->basePath . DIRECTORY_SEPARATOR . $this->publicPath;
+        }
+        return $this->publicPath;
     }
 
     /**
@@ -79,7 +229,7 @@ class Application extends \Mix\Core\Application
             $keys   = array_keys($options);
             $flag   = array_shift($keys);
             $script = Argument::script();
-            throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'."); // 这里只是全局flag效验
+            throw new NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'."); // 这里只是全局flag效验
         }
         if (Argument::command() !== '' && Flag::bool(['h', 'help'], false)) {
             $this->commandHelp();
@@ -217,7 +367,7 @@ class Application extends \Mix\Core\Application
         if (!$this->isSingleCommand) {
             if (!isset($this->commands[$command])) {
                 $script = Argument::script();
-                throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
+                throw new NotFoundException("'{$command}' is not command, see '{$script} --help'.");
             }
             $class = $this->commands[$command];
             if (is_array($class)) {
@@ -251,13 +401,13 @@ class Application extends \Mix\Core\Application
     {
         // 判断类是否存在
         if (!class_exists($class)) {
-            throw new \Mix\Exception\CommandException("'{$class}' class not found.");
+            throw new NotFoundException("'{$class}' class not found.");
         }
         // 实例化
         $instance = new $class();
         // 判断方法是否存在
         if (!method_exists($instance, $action)) {
-            throw new \Mix\Exception\CommandException("'{$class}::main' method not found.");
+            throw new NotFoundException("'{$class}::main' method not found.");
         }
         // 执行方法
         call_user_func([$instance, $action]);
@@ -294,7 +444,7 @@ class Application extends \Mix\Core\Application
                 $script  = Argument::script();
                 $command = Argument::command();
                 $command = $command ? " {$command}" : $command;
-                throw new \Mix\Exception\NotFoundException("flag provided but not defined: '{$flag}', see '{$script}{$command} --help'.");
+                throw new NotFoundException("flag provided but not defined: '{$flag}', see '{$script}{$command} --help'.");
             }
         }
     }
