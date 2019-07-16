@@ -3,6 +3,7 @@
 namespace Mix\Console;
 
 use Mix\Console\Exception\ErrorException;
+use Mix\Console\Exception\NotFoundException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -185,7 +186,7 @@ class Error
             'trace'   => $e->getTraceAsString(),
         ];
         // 日志处理
-        if ($e instanceof \Mix\Exception\NotFoundException) {
+        if ($e instanceof NotFoundException) {
             // 打印到屏幕
             println($errors['message']);
             return;
