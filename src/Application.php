@@ -2,6 +2,7 @@
 
 namespace Mix\Console;
 
+use Mix\Bean\ApplicationContext;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Concurrent\Coroutine;
@@ -107,7 +108,9 @@ class Application
         // 保存引用
         \Mix::$app = $this;
         // 错误注册
-        \Mix\Core\Error::register();
+        /** @var Error $error */
+        $error = $this->context->get('error');
+        $error->register();
         // 是否为单命令
         $commands              = $this->commands;
         $frist                 = array_shift($commands);
