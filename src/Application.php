@@ -21,6 +21,12 @@ class Application extends \Mix\Core\Application
     public $commands = [];
 
     /**
+     * 开启默认协程
+     * @var bool
+     */
+    public $enableCoroutine = true;
+
+    /**
      * 是否为单命令
      * @var bool
      */
@@ -45,7 +51,6 @@ class Application extends \Mix\Core\Application
 
     /**
      * 执行功能 (CLI模式)
-     * @return mixed
      */
     public function run()
     {
@@ -68,7 +73,8 @@ class Application extends \Mix\Core\Application
                 return;
             } elseif ($this->isSingleCommand) {
                 // 单命令执行
-                return $this->runAction(Argument::command());
+                $this->callCommand(Argument::command());
+                return;
             }
             $keys   = array_keys($options);
             $flag   = array_shift($keys);
@@ -80,7 +86,7 @@ class Application extends \Mix\Core\Application
             return;
         }
         // 非单命令执行
-        return $this->runAction(Argument::command());
+        $this->callCommand(Argument::command());
     }
 
     /**
@@ -201,42 +207,60 @@ class Application extends \Mix\Core\Application
     }
 
     /**
-     * 执行功能并返回
+     * 调用命令
      * @param $command
-     * @return mixed
      */
-    public function runAction($command)
+    public function callCommand($command)
     {
         // 生成类名，方法名
-        $commandClass = '';
+        $class = '';
         if (!$this->isSingleCommand) {
             if (!isset($this->commands[$command])) {
                 $script = Argument::script();
                 throw new \Mix\Exception\NotFoundException("'{$command}' is not command, see '{$script} --help'.");
             }
-            $commandClass = $this->commands[$command];
-            if (is_array($commandClass)) {
-                $commandClass = array_shift($commandClass);
+            $class = $this->commands[$command];
+            if (is_array($class)) {
+                $class = array_shift($class);
             }
         } else {
-            $tmp          = $this->commands;
-            $commandClass = array_shift($tmp);
+            $tmp   = $this->commands;
+            $class = array_shift($tmp);
         }
-        $commandAction = 'main';
-        // 判断类是否存在
-        if (!class_exists($commandClass)) {
-            throw new \Mix\Exception\CommandException("'{$commandClass}' class not found.");
-        }
-        // 实例化
-        $commandInstance = new $commandClass();
-        // 判断方法是否存在
-        if (!method_exists($commandInstance, $commandAction)) {
-            throw new \Mix\Exception\CommandException("'{$commandClass}::main' method not found.");
-        }
+        $action = 'main';
         // 命令行选项效验
         $this->validateOptions($command);
+        // 执行功能
+        if ($this->enableCoroutine) { // 协程执行
+            $scheduler = new \Swoole\Coroutine\Scheduler;
+            $scheduler->add(function () use ($class, $action) {
+                xgo([$this, 'runAction'], $class, $action);
+            });
+            $scheduler->start();
+            return;
+        }
+        $this->runAction($class, $action); // 普通执行
+    }
+
+    /**
+     * 执行功能
+     * @param $class
+     * @param $action
+     */
+    public function runAction($class, $action)
+    {
+        // 判断类是否存在
+        if (!class_exists($class)) {
+            throw new \Mix\Exception\CommandException("'{$class}' class not found.");
+        }
+        // 实例化
+        $instance = new $class();
+        // 判断方法是否存在
+        if (!method_exists($instance, $action)) {
+            throw new \Mix\Exception\CommandException("'{$class}::main' method not found.");
+        }
         // 执行方法
-        return call_user_func([$commandInstance, $commandAction]);
+        call_user_func([$instance, $action]);
     }
 
     /**
