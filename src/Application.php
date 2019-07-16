@@ -3,6 +3,7 @@
 namespace Mix\Console;
 
 use Mix\Bean\ApplicationContext;
+use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Concurrent\Coroutine;
