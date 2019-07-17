@@ -88,9 +88,7 @@ class Error
      */
     public function appException($e)
     {
-        /** @var \Mix\Console\Error $error */
-        $error = \Mix::$app->get('error');
-        $error->handleException($e);
+        $this->handleException($e);
     }
 
     /**
