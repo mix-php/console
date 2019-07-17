@@ -43,30 +43,6 @@ class Application
     public $basePath = '';
 
     /**
-     * 配置路径
-     * @var string
-     */
-    public $configPath = 'config';
-
-    /**
-     * 运行目录路径
-     * @var string
-     */
-    public $runtimePath = 'runtime';
-
-    /**
-     * 公开目录路径
-     * @var string
-     */
-    public $publicPath = 'public';
-
-    /**
-     * 视图目录路径
-     * @var string
-     */
-    public $viewPath = 'views';
-
-    /**
      * 依赖配置
      * @var array
      */
@@ -141,66 +117,6 @@ class Application
             $current = $current[$key];
         }
         return $current;
-    }
-
-    /**
-     * 获取配置目录路径
-     * @return string
-     */
-    public function getConfigPath()
-    {
-        if (!FileSystemHelper::isAbsolute($this->configPath)) {
-            if ($this->configPath == '') {
-                return $this->basePath;
-            }
-            return $this->basePath . DIRECTORY_SEPARATOR . $this->configPath;
-        }
-        return $this->configPath;
-    }
-
-    /**
-     * 获取运行目录路径
-     * @return string
-     */
-    public function getRuntimePath()
-    {
-        if (!FileSystemHelper::isAbsolute($this->runtimePath)) {
-            if ($this->runtimePath == '') {
-                return $this->basePath;
-            }
-            return $this->basePath . DIRECTORY_SEPARATOR . $this->runtimePath;
-        }
-        return $this->runtimePath;
-    }
-
-    /**
-     * 获取视图目录路径
-     * @return string
-     */
-    public function getViewPath()
-    {
-        if (!FileSystemHelper::isAbsolute($this->viewPath)) {
-            if ($this->viewPath == '') {
-                return $this->basePath;
-            }
-            return $this->basePath . DIRECTORY_SEPARATOR . $this->viewPath;
-        }
-        return $this->viewPath;
-    }
-
-    /**
-     * 获取公开目录路径
-     * @return string
-     */
-    public function getPublicPath()
-    {
-        if (!FileSystemHelper::isAbsolute($this->publicPath)) {
-            if ($this->publicPath == '') {
-                return $this->basePath;
-            }
-            return $this->basePath . DIRECTORY_SEPARATOR . $this->publicPath;
-        }
-        return $this->publicPath;
     }
 
     /**
