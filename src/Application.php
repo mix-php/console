@@ -67,6 +67,15 @@ class Application
     public $enableCoroutine = true;
 
     /**
+     * 协程配置
+     * @var array
+     */
+    public $coroutineSetting = [
+        'max_coroutine' => 300000,
+        'hook_flags'    => SWOOLE_HOOK_ALL,
+    ];
+
+    /**
      * 是否为单命令
      * @var bool
      */
@@ -303,6 +312,7 @@ class Application
         // 执行功能
         if ($this->enableCoroutine) { // 协程执行
             $scheduler = new \Swoole\Coroutine\Scheduler;
+            $scheduler->set($this->coroutineSetting);
             $scheduler->add(function () use ($class, $action) {
                 xgo([$this, 'runAction'], $class, $action);
             });
