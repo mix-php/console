@@ -174,7 +174,7 @@ class Application
     protected function help()
     {
         $script = Argument::script();
-        println("Usage: {$script} [OPTIONS] COMMAND [opt...]");
+        println("Usage: {$script}" . ($this->isSingleCommand ? '' : ' [OPTIONS] COMMAND') . " [opt...]");
         $this->printOptions();
         if (!$this->isSingleCommand) {
             $this->printCommands();
@@ -182,7 +182,7 @@ class Application
             $this->printCommandOptions();
         }
         println('');
-        println("Run '{$script} COMMAND --help' for more information on a command.");
+        println("Run '{$script}" . ($this->isSingleCommand ? '' : ' COMMAND') . " --help' for more information on a command.");
         println('');
         println("Developed with Mix PHP framework. (mixphp.cn)");
     }
