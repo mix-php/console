@@ -43,7 +43,7 @@ class Application
     public $basePath = '';
 
     /**
-     * 开启默认协程
+     * 开启协程
      * @var bool
      */
     public $enableCoroutine = true;
