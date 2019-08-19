@@ -33,7 +33,7 @@ if (!function_exists('xdefer')) {
     // 创建延迟执行
     function xdefer($function)
     {
-        return \Swoole\Coroutine::defer($function);
+        return \Mix\Concurrent\Coroutine::defer($function);
     }
 }
 
