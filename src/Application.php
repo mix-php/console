@@ -43,10 +43,19 @@ class Application
     public $basePath = '';
 
     /**
-     * 依赖配置
+     * 开启默认协程
+     * @var bool
+     */
+    public $enableCoroutine = true;
+
+    /**
+     * 协程设置
      * @var array
      */
-    public $beans = [];
+    public $coroutineSetting = [
+        'max_coroutine' => 300000,
+        'hook_flags'    => SWOOLE_HOOK_ALL,
+    ];
 
     /**
      * Context
@@ -61,19 +70,10 @@ class Application
     public $commands = [];
 
     /**
-     * 开启默认协程
-     * @var bool
-     */
-    public $enableCoroutine = true;
-
-    /**
-     * 协程配置
+     * 依赖配置
      * @var array
      */
-    public $coroutineSetting = [
-        'max_coroutine' => 300000,
-        'hook_flags'    => SWOOLE_HOOK_ALL,
-    ];
+    public $beans = [];
 
     /**
      * 是否为单命令
