@@ -43,7 +43,7 @@ class Application
     public $basePath = '';
 
     /**
-     * 协程配置
+     * 协程
      * @var array
      */
     public $coroutine = [
@@ -320,7 +320,6 @@ class Application
                         // 执行闭包
                         call_user_func([$this, 'runAction'], $class, $action);
                     } catch (\Throwable $e) {
-                        // Mix错误处理
                         /** @var \Mix\Console\Error $error */
                         $error = \Mix::$app->context->get('error');
                         $error->handleException($e);
