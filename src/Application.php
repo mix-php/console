@@ -43,18 +43,15 @@ class Application
     public $basePath = '';
 
     /**
-     * 开启协程
-     * @var bool
-     */
-    public $enableCoroutine = true;
-
-    /**
-     * 协程设置
+     * 协程配置
      * @var array
      */
-    public $coroutineSetting = [
-        'max_coroutine' => 300000,
-        'hook_flags'    => SWOOLE_HOOK_ALL,
+    public $coroutine = [
+        true,
+        [
+            'max_coroutine' => 300000,
+            'hook_flags'    => SWOOLE_HOOK_ALL,
+        ],
     ];
 
     /**
@@ -79,7 +76,7 @@ class Application
      * 是否为单命令
      * @var bool
      */
-    protected $isSingleCommand;
+    protected $isSingleCommand = false;
 
     /**
      * Application constructor.
@@ -310,16 +307,31 @@ class Application
         // 命令行选项效验
         $this->validateOptions($command);
         // 执行功能
-        if ($this->enableCoroutine) { // 协程执行
+        list($enable, $options) = $this->coroutine;
+        // 协程执行
+        if ($enable) {
             $scheduler = new \Swoole\Coroutine\Scheduler;
-            $scheduler->set($this->coroutineSetting);
+            $scheduler->set($options);
             $scheduler->add(function () use ($class, $action) {
-                xgo([$this, 'runAction'], $class, $action);
+                if (Coroutine::id() == -1) {
+                    xgo([$this, 'runAction'], $class, $action);
+                } else {
+                    try {
+                        // 执行闭包
+                        call_user_func([$this, 'runAction'], $class, $action);
+                    } catch (\Throwable $e) {
+                        // Mix错误处理
+                        /** @var \Mix\Console\Error $error */
+                        $error = \Mix::$app->context->get('error');
+                        $error->handleException($e);
+                    }
+                }
             });
             $scheduler->start();
             return;
         }
-        $this->runAction($class, $action); // 普通执行
+        // 普通执行
+        $this->runAction($class, $action);
     }
 
     /**
