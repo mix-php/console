@@ -7,7 +7,7 @@ use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Concurrent\Coroutine;
-use Mix\Console\Exception\ConfigException;
+use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
 
 /**
@@ -105,20 +105,20 @@ class Application
      * @param $name
      * @return mixed
      */
-    public function getConfig($name)
+    public function config($name)
     {
-        $message   = "Configuration does not exist: {$name}.";
+        $message   = "Failed to find configuration section '{$name}'";
         $fragments = explode('.', $name);
         // 判断一级配置是否存在
         $first = array_shift($fragments);
         if (!isset($this->$first)) {
-            throw new ConfigException($message);
+            throw new ConfigSectionException($message);
         }
         // 判断其他配置是否存在
         $current = $this->$first;
         foreach ($fragments as $key) {
             if (!isset($current[$key])) {
-                throw new ConfigException($message);
+                throw new ConfigSectionException($message);
             }
             $current = $current[$key];
         }
