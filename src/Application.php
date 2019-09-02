@@ -303,7 +303,7 @@ class Application
             $tmp   = $this->commands;
             $class = array_shift($tmp);
         }
-        $action = 'main';
+        $method = 'main';
         // 命令行选项效验
         $this->validateOptions($command);
         // 执行功能
@@ -312,13 +312,12 @@ class Application
         if ($enable) {
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
-            $scheduler->add(function () use ($class, $action) {
+            $scheduler->add(function () use ($class, $method) {
                 if (Coroutine::id() == -1) {
-                    xgo([$this, 'runAction'], $class, $action);
+                    xgo([$this, 'callMethod'], $class, $method);
                 } else {
                     try {
-                        // 执行闭包
-                        call_user_func([$this, 'runAction'], $class, $action);
+                        call_user_func([$this, 'callMethod'], $class, $method);
                     } catch (\Throwable $e) {
                         /** @var \Mix\Console\Error $error */
                         $error = \Mix::$app->context->get('error');
@@ -330,15 +329,15 @@ class Application
             return;
         }
         // 普通执行
-        $this->runAction($class, $action);
+        $this->callMethod($class, $method);
     }
 
     /**
-     * 执行功能
+     * 调用方法
      * @param $class
-     * @param $action
+     * @param $method
      */
-    public function runAction($class, $action)
+    public function callMethod($class, $method)
     {
         // 判断类是否存在
         if (!class_exists($class)) {
@@ -347,11 +346,11 @@ class Application
         // 实例化
         $instance = new $class();
         // 判断方法是否存在
-        if (!method_exists($instance, $action)) {
+        if (!method_exists($instance, $method)) {
             throw new NotFoundException("'{$class}::main' method not found.");
         }
         // 执行方法
-        call_user_func([$instance, $action]);
+        call_user_func([$instance, $method]);
     }
 
     /**
