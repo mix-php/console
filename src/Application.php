@@ -6,7 +6,6 @@ use Mix\Bean\ApplicationContext;
 use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
-use Mix\Concurrent\Coroutine;
 use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
 
@@ -313,7 +312,7 @@ class Application
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
             $scheduler->add(function () use ($class, $method) {
-                if (Coroutine::id() == -1) {
+                if (\Swoole\Coroutine::getCid() == -1) {
                     xgo([$this, 'callMethod'], $class, $method);
                 } else {
                     try {
