@@ -130,7 +130,7 @@ class Application
     public function run()
     {
         if (PHP_SAPI != 'cli') {
-            throw new \RuntimeException('Please run in CLI mode.');
+            throw new \RuntimeException('please run in cli mode.');
         }
         Flag::init();
         if (Argument::command() == '') {
