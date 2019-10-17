@@ -309,6 +309,9 @@ class Application
         list($enable, $options) = $this->coroutine;
         // 协程执行
         if ($enable) {
+            if (!extension_loaded('swoole')) {
+                throw new \RuntimeException('manifest.php has coroutine enable, need swoole extension to run, install: https://www.swoole.com/');
+            }
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
             $scheduler->add(function () use ($class, $method) {
