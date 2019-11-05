@@ -49,7 +49,7 @@ class Application
         true,
         [
             'max_coroutine' => 300000,
-            'hook_flags'    => SWOOLE_HOOK_ALL,
+            'hook_flags'    => 1879048191, // SWOOLE_HOOK_ALL
         ],
     ];
 
