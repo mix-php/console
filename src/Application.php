@@ -6,6 +6,7 @@ use Mix\Bean\ApplicationContext;
 use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
+use Mix\Console\Event\BeforeSchedulerStartEvent;
 use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
 
@@ -101,10 +102,10 @@ class Application
 
     /**
      * 获取配置
-     * @param $name
+     * @param string $name
      * @return mixed
      */
-    public function config($name)
+    public function config(string $name)
     {
         $message   = "Failed to find configuration section '{$name}'";
         $fragments = explode('.', $name);
@@ -283,9 +284,9 @@ class Application
 
     /**
      * 调用命令
-     * @param $command
+     * @param string $command
      */
-    public function callCommand($command)
+    public function callCommand(string $command)
     {
         // 生成类名，方法名
         $class = '';
@@ -305,13 +306,18 @@ class Application
         $method = 'main';
         // 命令行选项效验
         $this->validateOptions($command);
-        // 执行功能
-        list($enable, $options) = $this->coroutine;
         // 协程执行
+        list($enable, $options) = $this->coroutine;
         if ($enable) {
+            // 环境效验
             if (!extension_loaded('swoole') || !class_exists(\Swoole\Coroutine\Scheduler::class)) {
                 throw new \RuntimeException('Application has coroutine enabled, require swoole extension >= v4.4 to run. install: https://www.swoole.com/');
             }
+            // 触发调度器启动前置事件
+            /** @var \Mix\Event\EventDispatcher $event */
+            $event = $this->context->get('event');
+            $event->dispatch(new BeforeSchedulerStartEvent($class));
+            // 协程执行
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
             $scheduler->add(function () use ($class, $method) {
@@ -351,15 +357,15 @@ class Application
         if (!method_exists($instance, $method)) {
             throw new NotFoundException("'{$class}::main' method not found.");
         }
-        // 执行方法
+        // 调用方法
         call_user_func([$instance, $method]);
     }
 
     /**
      * 命令行选项效验
-     * @param $command
+     * @param string $command
      */
-    protected function validateOptions($command)
+    protected function validateOptions(string $command)
     {
         $options = [];
         if (!$this->isSingleCommand) {
