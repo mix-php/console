@@ -310,7 +310,7 @@ class Application
         // 协程执行
         if ($enable) {
             if (!extension_loaded('swoole') || !class_exists(\Swoole\Coroutine\Scheduler::class)) {
-                throw new \RuntimeException('application has coroutine enabled, require swoole extension >= v4.4 to run. install: https://www.swoole.com/');
+                throw new \RuntimeException('Application has coroutine enabled, require swoole extension >= v4.4 to run. install: https://www.swoole.com/');
             }
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
