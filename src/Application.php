@@ -9,6 +9,7 @@ use Mix\Console\CommandLine\Flag;
 use Mix\Console\Event\BeforeSchedulerStartEvent;
 use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
+use Mix\Event\EventDispatcher;
 
 /**
  * Class Application
@@ -79,6 +80,16 @@ class Application
     protected $isSingleCommand = false;
 
     /**
+     * @var Error
+     */
+    protected $error;
+
+    /**
+     * @var EventDispatcher
+     */
+    protected $eventDispatcher;
+
+    /**
      * Application constructor.
      * @param array $config
      */
@@ -86,14 +97,15 @@ class Application
     {
         // 注入
         BeanInjector::inject($this, $config);
-        // 实例化ApplicationContext
-        $this->context = new ApplicationContext($this->beans);
         // 保存引用
         \Mix::$app = $this;
+        // 初始化上下文
+        $this->context = new ApplicationContext($this->beans);
+        // 加载核心库
+        $this->error           = $this->context->get('error');
+        $this->eventDispatcher = $this->context->get('event');
         // 错误注册
-        /** @var Error $error */
-        $error = $this->context->get('error');
-        $error->register();
+        $this->error->register();
         // 是否为单命令
         $commands              = $this->commands;
         $frist                 = array_shift($commands);
@@ -314,9 +326,7 @@ class Application
                 throw new \RuntimeException('Application has coroutine enabled, require swoole extension >= v4.4 to run. install: https://www.swoole.com/');
             }
             // 触发调度器启动前置事件
-            /** @var \Mix\Event\EventDispatcher $event */
-            $event = $this->context->get('event');
-            $event->dispatch(new BeforeSchedulerStartEvent($class));
+            $this->eventDispatcher->dispatch(new BeforeSchedulerStartEvent($class));
             // 协程执行
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
@@ -327,9 +337,7 @@ class Application
                     try {
                         call_user_func([$this, 'callMethod'], $class, $method);
                     } catch (\Throwable $e) {
-                        /** @var \Mix\Console\Error $error */
-                        $error = \Mix::$app->context->get('error');
-                        $error->handleException($e);
+                        $this->error->handleException($e);
                     }
                 }
             });
