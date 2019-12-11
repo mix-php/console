@@ -6,7 +6,7 @@ use Mix\Bean\ApplicationContext;
 use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
-use Mix\Console\Event\BeforeSchedulerStartEvent;
+use Mix\Console\Event\CommandBeforeExecuteEvent;
 use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
 use Mix\Event\EventDispatcher;
@@ -80,11 +80,13 @@ class Application
     protected $isSingleCommand = false;
 
     /**
+     * Error
      * @var Error
      */
     protected $error;
 
     /**
+     * EventDispatcher
      * @var EventDispatcher
      */
     protected $eventDispatcher;
@@ -325,8 +327,8 @@ class Application
             if (!extension_loaded('swoole') || !class_exists(\Swoole\Coroutine\Scheduler::class)) {
                 throw new \RuntimeException('Application has coroutine enabled, require swoole extension >= v4.4 to run. install: https://www.swoole.com/');
             }
-            // 触发调度器启动前置事件
-            $this->eventDispatcher->dispatch(new BeforeSchedulerStartEvent($class));
+            // 触发执行命令前置事件
+            $this->eventDispatcher->dispatch(new CommandBeforeExecuteEvent($class));
             // 协程执行
             $scheduler = new \Swoole\Coroutine\Scheduler;
             $scheduler->set($options);
@@ -344,6 +346,8 @@ class Application
             $scheduler->start();
             return;
         }
+        // 触发执行命令前置事件
+        $this->eventDispatcher->dispatch(new CommandBeforeExecuteEvent($class));
         // 普通执行
         $this->callMethod($class, $method);
     }
