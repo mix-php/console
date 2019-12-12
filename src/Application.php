@@ -106,8 +106,6 @@ class Application
         // 加载核心库
         $this->error           = $this->context->get('error');
         $this->eventDispatcher = $this->context->get('event');
-        // 错误注册
-        $this->error->register();
         // 是否为单命令
         $commands              = $this->commands;
         $frist                 = array_shift($commands);

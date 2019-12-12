@@ -27,12 +27,13 @@ class Error
     /**
      * Error constructor.
      * @param int $level
-     * @param LoggerInterface|null $logger
+     * @param LoggerInterface $logger
      */
-    public function __construct(int $level, LoggerInterface $logger = null)
+    public function __construct(int $level, LoggerInterface $logger)
     {
         $this->level  = $level;
         $this->logger = $logger;
+        $this->register();
     }
 
     /**
@@ -181,7 +182,7 @@ class Error
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
             'type'    => get_class($e),
-            'trace'   => $e->getTraceAsString(),
+            'trace'   => str_replace("\n", "\n ", " " . $e->getTraceAsString()),
         ];
         // 日志处理
         if ($e instanceof NotFoundException) {
@@ -201,7 +202,7 @@ class Error
     {
         $logger = $this->logger;
         // 构造消息
-        $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n[trace] {trace}";
+        $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n{trace}";
         if (!\Mix::$app->appDebug) {
             $message = "{message} [{code}] {type} in {file} line {line}";
         }
