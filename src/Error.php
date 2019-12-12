@@ -182,7 +182,7 @@ class Error
             'file'    => $e->getFile(),
             'line'    => $e->getLine(),
             'type'    => get_class($e),
-            'trace'   => str_replace("\n", "\n ", " " . $e->getTraceAsString()),
+            'trace'   => $e->getTraceAsString(),
         ];
         // 日志处理
         if ($e instanceof NotFoundException) {
@@ -202,23 +202,53 @@ class Error
     {
         $logger = $this->logger;
         // 构造消息
-        $message = "{message}\n[code] {code} [type] {type}\n[file] {file} [line] {line}\n{trace}";
-        if (!\Mix::$app->appDebug) {
-            $message = "{message} [{code}] {type} in {file} line {line}";
-        }
+        list($message, $context) = static::format($errors, \Mix::$app->appDebug);
         // 写入
-        $level = static::levelType($errors['code']);
+        $level = static::levelType($context['code']);
         switch ($level) {
             case 'error':
-                $logger->error($message, $errors);
+                $logger->error($message, $context);
                 break;
             case 'warning':
-                $logger->warning($message, $errors);
+                $logger->warning($message, $context);
                 break;
             case 'notice':
-                $logger->notice($message, $errors);
+                $logger->notice($message, $context);
                 break;
         }
+    }
+
+    /**
+     * 格式化
+     * @param array $errors
+     * @param bool $debug
+     * @return string
+     */
+    protected static function format(array $errors, bool $debug)
+    {
+        $context = $errors;
+        $trace   = explode("\n", $context['trace']);
+        foreach ($trace as $key => $value) {
+            $value     = str_replace(': ', ' ', $value);
+            $fragments = explode(' ', $value);
+            if (count($fragments) == 3) {
+                // IDE可识别处理
+                $fragments[1] = str_replace(['.php(', ')'], ['.php on line ', ''], $fragments[1]);
+                $fragments[1] = 'in ' . $fragments[1];
+                // 换位置，只有放最后IDE才可识别
+                $tmp          = $fragments[1];
+                $fragments[1] = $fragments[2];
+                $fragments[2] = $tmp;
+                $value        = implode(' ', $fragments);
+            }
+            $trace[$key] = ' ' . $value;
+        }
+        $context['trace'] = implode($trace, "\n");
+        $message          = "{message}\n[code] {code} [type] {type}\n[file] in {file} on line {line}\n{trace}";
+        if (!$debug) {
+            $message = "{message} [{code}] {type} in {file} on line {line}";
+        }
+        return [$message, $context];
     }
 
 }

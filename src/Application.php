@@ -7,7 +7,6 @@ use Mix\Bean\BeanInjector;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Console\Event\CommandBeforeExecuteEvent;
-use Mix\Console\Exception\ConfigSectionException;
 use Mix\Console\Exception\NotFoundException;
 use Mix\Event\EventDispatcher;
 
@@ -110,31 +109,6 @@ class Application
         $commands              = $this->commands;
         $frist                 = array_shift($commands);
         $this->isSingleCommand = is_string($frist);
-    }
-
-    /**
-     * 获取配置
-     * @param string $name
-     * @return mixed
-     */
-    public function config(string $name)
-    {
-        $message   = "Failed to find configuration section '{$name}'";
-        $fragments = explode('.', $name);
-        // 判断一级配置是否存在
-        $first = array_shift($fragments);
-        if (!isset($this->$first)) {
-            throw new ConfigSectionException($message);
-        }
-        // 判断其他配置是否存在
-        $current = $this->$first;
-        foreach ($fragments as $key) {
-            if (!isset($current[$key])) {
-                throw new ConfigSectionException($message);
-            }
-            $current = $current[$key];
-        }
-        return $current;
     }
 
     /**
