@@ -201,7 +201,7 @@ class Error
     protected function log(array $errors)
     {
         $logger = $this->logger;
-        // 构造消息
+        // 构造内容
         list($message, $context) = static::format($errors, \Mix::$app->appDebug);
         // 写入
         $level = static::levelType($context['code']);
