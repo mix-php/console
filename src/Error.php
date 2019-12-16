@@ -229,17 +229,22 @@ class Error
         $context = $errors;
         $trace   = explode("\n", $context['trace']);
         foreach ($trace as $key => $value) {
-            $value     = str_replace(': ', ' ', $value);
-            $fragments = explode(' ', $value);
-            if (count($fragments) == 3) {
-                // IDE可识别处理
-                $fragments[1] = str_replace(['.php(', ')'], ['.php on line ', ''], $fragments[1]);
-                $fragments[1] = 'in ' . $fragments[1];
-                // 换位置，只有放最后IDE才可识别
-                $tmp          = $fragments[1];
-                $fragments[1] = $fragments[2];
-                $fragments[2] = $tmp;
-                $value        = implode(' ', $fragments);
+            if (strpos($value, '): ') !== false) {
+                // 切割为数组
+                $fragments   = [];
+                $tmp         = explode(' ', $value);
+                $fragments[] = array_shift($tmp);
+                $tmp1        = explode('): ', join($tmp, ' '));
+                $tmp1[0]     .= ')';
+                if (count($tmp1) == 2) {
+                    // IDE 可识别处理，只有放最后才可识别
+                    $fragments[]  = array_pop($tmp1);
+                    $fragments[]  = array_pop($tmp1);
+                    $fragments[2] = str_replace(['.php(', ')'], ['.php on line ', ''], $fragments[2]);
+                    $fragments[2] = 'in ' . $fragments[2];
+                    // 合并
+                    $value = implode(' ', $fragments);
+                }
             }
             $trace[$key] = ' ' . $value;
         }
