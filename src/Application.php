@@ -8,7 +8,7 @@ use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Console\Event\CommandBeforeExecuteEvent;
 use Mix\Console\Exception\NotFoundException;
-use Mix\Event\EventDispatcher;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class Application
@@ -86,7 +86,7 @@ class Application
 
     /**
      * EventDispatcher
-     * @var EventDispatcher
+     * @var EventDispatcherInterface
      */
     protected $eventDispatcher;
 
