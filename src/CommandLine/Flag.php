@@ -35,7 +35,8 @@ class Flag
             $name  = $item;
             $value = '';
             if (strpos($name, '=') !== false) {
-                list($name, $value) = explode('=', $item);
+                list($name) = explode('=', $item);
+                $value = ltrim(strstr($item, "="), "=");
             }
             if (substr($name, 0, 2) == '--' || substr($name, 0, 1) == '-') {
                 // 无值参数处理
