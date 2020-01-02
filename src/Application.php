@@ -143,7 +143,7 @@ class Application
             $script = Argument::script();
             throw new NotFoundException("flag provided but not defined: '{$flag}', see '{$script} --help'."); // 这里只是全局flag效验
         }
-        if (Argument::command() !== '' && Flag::bool(['h', 'help'], false)) {
+        if (Argument::command() !== '' && Flag::bool('help', false)) {
             $this->commandHelp();
             return;
         }
