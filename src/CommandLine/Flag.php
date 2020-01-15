@@ -77,7 +77,7 @@ class Flag
             }
         }
         foreach (static::options() as $key => $value) {
-            if (in_array($key, $flags)) {
+            if (in_array($key, $flags, true)) {
                 if ($value === 'false') {
                     return false;
                 }
@@ -108,7 +108,7 @@ class Flag
             }
         }
         foreach (static::options() as $key => $value) {
-            if (in_array($key, $flags)) {
+            if (in_array($key, $flags, true)) {
                 if ($value === '') {
                     return $default;
                 }
