@@ -4,6 +4,7 @@ namespace Mix\Console;
 
 use Mix\Bean\ApplicationContext;
 use Mix\Bean\BeanInjector;
+use Mix\Bean\FileSystemApplicationContext;
 use Mix\Console\CommandLine\Argument;
 use Mix\Console\CommandLine\Flag;
 use Mix\Console\Event\CommandBeforeExecuteEvent;
@@ -41,6 +42,12 @@ class Application
      * @var string
      */
     public $basePath = '';
+
+    /**
+     * 依赖路径
+     * @var string
+     */
+    public $beanPath = '';
 
     /**
      * 协程
@@ -101,7 +108,11 @@ class Application
         // 保存引用
         \Mix::$app = $this;
         // 初始化上下文
-        $this->context = new ApplicationContext($this->beans);
+        if ($this->beanPath != '') {
+            $this->context = new FileSystemApplicationContext($this->beanPath);
+        } else {
+            $this->context = new ApplicationContext($this->beans);
+        }
         // 加载核心库
         $this->error           = $this->context->get('error');
         $this->eventDispatcher = $this->context->get('event');
